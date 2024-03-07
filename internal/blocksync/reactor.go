@@ -75,6 +75,7 @@ type Reactor struct {
 func NewReactor(state sm.State, blockExec *sm.BlockExecutor, store *store.BlockStore,
 	blockSync bool, metrics *Metrics, offlineStateSyncHeight int64,
 ) *Reactor {
+	fmt.Printf("creating new reactor\n")
 	storeHeight := store.Height()
 	if storeHeight == 0 {
 		// If state sync was performed offline and the stores were bootstrapped to height H
