@@ -775,6 +775,7 @@ func (cs *State) newStep() {
 // State must be locked before any internal state is updated.
 func (cs *State) receiveRoutine(maxSteps int) {
 	onExit := func(cs *State) {
+		cs.Logger.Debug("receive routine entrance")
 		// NOTE: the internalMsgQueue may have signed messages from our
 		// priv_val that haven't hit the WAL, but its ok because
 		// priv_val tracks LastSig
@@ -828,6 +829,7 @@ func (cs *State) receiveRoutine(maxSteps int) {
 			cs.handleMsg(mi)
 
 		case mi = <-cs.internalMsgQueue:
+			cs.Logger.Debug("received msg from intervalMsgQueue")
 			err := cs.wal.WriteSync(mi) // NOTE: fsync
 			if err != nil {
 				panic(fmt.Sprintf(
@@ -845,6 +847,7 @@ func (cs *State) receiveRoutine(maxSteps int) {
 			}
 
 			// handles proposals, block parts, votes
+			cs.Logger.Debug("start handle internal msg")
 			cs.handleMsg(mi)
 
 		case ti := <-cs.timeoutTicker.Chan(): // tockChan:
@@ -1230,6 +1233,10 @@ func (cs *State) defaultDecideProposal(height int64, round int32) {
 	p := proposal.ToProto()
 	if err := cs.privValidator.SignProposal(cs.state.ChainID, p); err == nil {
 		proposal.Signature = p.Signature
+
+		cs.Logger.Debug("Start sending proposal and block parts on intervalMsgQueue")
+		// time.Sleep(1 * time.Second)
+		// cs.Logger.Debug("Wake up from 1 second sleep")
 
 		// send proposal and block parts on internal msg queue
 		cs.sendInternalMessage(msgInfo{&ProposalMessage{proposal}, ""})

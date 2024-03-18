@@ -1,0 +1,10 @@
+ Stack trace of Broadcast function call       module=p2p goroutine87[running]:github.com/cometbft/cometbft/p2p.(*Switch).Broadcast(0xc000422d80,{{0x0,0x0},{0x135dc80,0xc000138be0},0x20})github.com/cometbft/cometbft/p2p/switch.go:281+0xeegithub.com/cometbft/cometbft/internal/consensus.(*Reactor).broadcastNewRoundStepMessage(0xc00028a800,0xc001422660?)github.com/cometbft/cometbft/internal/consensus/reactor.go:457+0x68
+ github.com/cometbft/cometbft/internal/consensus.(*Reactor).subscribeToBroadcastEvents.func1({0x102fca0?,0xc000004eb0?})github.com/cometbft/cometbft/internal/consensus/reactor.go:423
+ +0x2egithub.com/cometbft/cometbft/internal/events.(*eventCell).FireEvent(0xc0003d7400,{0x102fca0,0xc000004eb0})github.com/cometbft/cometbft/internal/events/events.go:198
+ +0x1d1github.com/cometbft/cometbft/internal/events.(*eventSwitch).FireEvent(0xc000236310,{0x10e9f6c?,0xc000000000?},{0x102fca0,0xc000004eb0})github.com/cometbft/cometbft/internal/events/events.go:158
+ +0xb7github.com/cometbft/cometbft/internal/consensus.(*State).newStep(0xc000004e08)github.com/cometbft/cometbft/internal/consensus/state.go:764
+ +0x2d9github.com/cometbft/cometbft/internal/consensus.(*State).enterPropose.func1()github.com/cometbft/cometbft/internal/consensus/state.go:1150
+ +0x37github.com/cometbft/cometbft/internal/consensus.(*State).enterPropose(0xc000004e08,0x79,0x0)github.com/cometbft/cometbft/internal/consensus/state.go:1192
+ +0x90cgithub.com/cometbft/cometbft/internal/consensus.(*State).handleTxsAvailable(0xc000004e08)github.com/cometbft/cometbft/internal/consensus/state.go:1031+0x9e
+ github.com/cometbft/cometbft/internal/consensus.(*State).receiveRoutine(0xc000004e08,0x0)github.com/cometbft/cometbft/internal/consensus/state.go:821+0x405
+ createdbygithub.com/cometbft/cometbft/internal/consensus.(*State).OnStartingoroutine1github.com/cometbft/cometbft/internal/consensus/state.go:388+0x107=(MISSING)

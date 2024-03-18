@@ -274,6 +274,10 @@ func (sw *Switch) OnStop() {
 func (sw *Switch) Broadcast(e Envelope) chan bool {
 	sw.Logger.Debug("Broadcast", "channel", e.ChannelID)
 
+	// buf := make([]byte, 1<<16)
+	// n := runtime.Stack(buf, false)
+	// sw.Logger.Debug("Stack trace of Broadcast function call", buf[:n])
+
 	var wg sync.WaitGroup
 	successChan := make(chan bool, sw.peers.Size())
 
@@ -581,6 +585,10 @@ func (sw *Switch) IsDialingOrExistingAddress(addr *NetAddress) bool {
 func (sw *Switch) AddPersistentPeers(addrs []string) error {
 	sw.Logger.Info("Adding persistent peers", "addrs", addrs)
 	netAddrs, errs := NewNetAddressStrings(addrs)
+	sw.Logger.Debug("Parsed persistent peers")
+	for _, netAddr := range netAddrs {
+		sw.Logger.Debug("", "id", netAddr.ID, "ip", netAddr.IP, "port", netAddr.Port)
+	}
 	// report all the errors
 	for _, err := range errs {
 		sw.Logger.Error("Error in peer's address", "err", err)
