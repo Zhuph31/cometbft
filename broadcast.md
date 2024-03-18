@@ -1,4 +1,4 @@
-# Possible Solutino to swtich from gossip to broadcast
+# Possible Solution to swtich from gossip to broadcast
 
 By default, cometbft nodes do peer exchange through PEX, and each node would have a number of connected nodes. Each node would relay TXs to connected nodes. (Gossip)
 
