@@ -8,7 +8,9 @@ replace_text() {
     local replacement_string="$4" # Text to replace with
 
     # Find the line number containing the search string
-    local line_number=$(grep -n "$search_string" "$file" | cut -d':' -f1)
+    local line_number=$(grep -n "^$search_string" "$file" | cut -d':' -f1)
+
+    echo line_number is $line_number
 
     if [ -n "$line_number" ]; then
         # Store the old line
@@ -30,6 +32,17 @@ replace_text() {
     fi
 }
 
+# Function to delete lines starting with a specific string
+delete_lines_starting_with() {
+    local file="$1"          # File to be modified
+    local delete_string="$2" # String to delete
+
+    # Find lines starting with the specified string and delete them
+    sed -i "/^$delete_string/d" "$file"
+
+    echo "Lines starting with '$delete_string' deleted from $file"
+}
+
 # modify the config for all the docker nodes, so that cometbft would work as we expect them to
 cd build
 
@@ -44,7 +57,8 @@ for folder in */; do
     cd $folder/config
 
     replace_text "config.toml" "log_level" "info" "debug"
-    pwd
+    replace_text "config.toml" "create_empty_blocks =" "true" "false"
+    delete_lines_starting_with "config.toml" "create_empty_blocks_interval ="
 
     cd ../..
 
