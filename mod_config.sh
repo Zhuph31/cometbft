@@ -56,6 +56,7 @@ for folder in */; do
 
     cd $folder/config
 
+    replace_text "config.toml" "broadcast =" "true" "false"
     replace_text "config.toml" "log_level" "info" "debug"
     replace_text "config.toml" "create_empty_blocks =" "true" "false"
     delete_lines_starting_with "config.toml" "create_empty_blocks_interval ="
