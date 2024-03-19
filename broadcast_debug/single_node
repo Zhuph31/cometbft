@@ -1,0 +1,124 @@
+D[2024-03-18|19:30:02.260] HTTP HANDLER                                 module=rpc-server req="&{Method:GET URL:/broadcast_tx_commit?tx=\"name=tommy\" Proto:HTTP/1.1 ProtoMajor:1 ProtoMinor:1 Header:map[Accept:[*/*] User-Agent:[curl/7.81.0]] Body:0xc000506180 GetBody:<nil> ContentLength:0 TransferEncoding:[] Close:false Host:localhost:26657 Form:map[] PostForm:map[] MultipartForm:<nil> Trailer:map[] RemoteAddr:127.0.0.1:42890 RequestURI:/broadcast_tx_commit?tx=\"name=tommy\" TLS:<nil> Cancel:<nil> Response:<nil> ctx:0xc0004fa6e0 pat:<nil> matches:[] otherValues:map[]}"
+D[2024-03-18|19:30:02.260] Cached                                       module=mempool tx=276FA536C8E6E9B55B13384F9799CFE6FF150DE40EC24921A5325DE10AA92329
+D[2024-03-18|19:30:02.260] added valid transaction                      module=mempool tx=276FA536C8E6E9B55B13384F9799CFE6FF150DE40EC24921A5325DE10AA92329 height=27 total=1
+D[2024-03-18|19:30:02.261] entering propose step                        module=consensus height=28 round=0 current=28/0/RoundStepNewRound
+D[2024-03-18|19:30:02.261] node is a validator                          module=consensus height=28 round=0
+D[2024-03-18|19:30:02.261] propose step; our turn to propose            module=consensus height=28 round=0 proposer=8C6596CA37CC846897C421156DDB006F17963CBD
+D[2024-03-18|19:30:02.261] Received tick                                module=consensus old_ti="{Duration:994.7398ms Height:28 Round:0 Step:RoundStepNewHeight}" new_ti="{Duration:3s Height:28 Round:0 Step:RoundStepPropose}"
+D[2024-03-18|19:30:02.261] Timer already stopped                        module=consensus 
+D[2024-03-18|19:30:02.261] Scheduled timeout                            module=consensus dur=3s height=28 round=0 step=RoundStepPropose
+D[2024-03-18|19:30:02.266] Start sending proposal and block parts on intervalMsgQueue module=consensus 
+D[2024-03-18|19:30:02.266] signed proposal                              module=consensus height=28 round=0 proposal="Proposal{28/0 (164B6148A43D5CAA3BD081E1712085DAB3298941F112C4819AC1D756D7281FB5:1:A3163E6DECA4, -1) A76B8D364771 @ 2024-03-18T23:30:02.2630918Z}"
+D[2024-03-18|19:30:02.266] Broadcast                                    module=p2p channel=32
+D[2024-03-18|19:30:02.266] received msg from intervalMsgQueue           module=consensus 
+D[2024-03-18|19:30:02.269] start handle internal msg                    module=consensus 
+I[2024-03-18|19:30:02.269] received proposal                            module=consensus proposal="Proposal{28/0 (164B6148A43D5CAA3BD081E1712085DAB3298941F112C4819AC1D756D7281FB5:1:A3163E6DECA4, -1) A76B8D364771 @ 2024-03-18T23:30:02.2630918Z}" proposer=8C6596CA37CC846897C421156DDB006F17963CBD
+D[2024-03-18|19:30:02.269] received msg from intervalMsgQueue           module=consensus 
+D[2024-03-18|19:30:02.271] start handle internal msg                    module=consensus 
+D[2024-03-18|19:30:02.271] Broadcast                                    module=p2p channel=32
+D[2024-03-18|19:30:02.271] receive block part                           module=consensus height=28 round=0 index=0 count=1 total=1 from=
+I[2024-03-18|19:30:02.271] received complete proposal block             module=consensus height=28 hash=164B6148A43D5CAA3BD081E1712085DAB3298941F112C4819AC1D756D7281FB5
+D[2024-03-18|19:30:02.272] entering prevote step                        module=consensus height=28 round=0 current=28/0/RoundStepPropose
+D[2024-03-18|19:30:02.272] prevote step: ProposalBlock is valid and there is no locked block; prevoting the proposal module=consensus height=28 round=0
+D[2024-03-18|19:30:02.275] signed and pushed vote                       module=consensus height=28 round=0 vote="Vote{0:8C6596CA37CC 28/00/SIGNED_MSG_TYPE_PREVOTE(Prevote) 164B6148A43D 156E5E0CF9F0 000000000000 @ 2024-03-18T23:30:02.2730881Z}"
+D[2024-03-18|19:30:02.275] Broadcast                                    module=p2p channel=32
+D[2024-03-18|19:30:02.275] received msg from intervalMsgQueue           module=consensus 
+D[2024-03-18|19:30:02.275] Attempt to update stats for non-existent peer module=consensus peer=
+D[2024-03-18|19:30:02.278] start handle internal msg                    module=consensus 
+D[2024-03-18|19:30:02.278] adding vote                                  module=consensus vote_height=28 vote_type=SIGNED_MSG_TYPE_PREVOTE val_index=0 cs_height=28 extLen=0 extSigLen=0
+D[2024-03-18|19:30:02.278] Broadcast                                    module=p2p channel=32
+D[2024-03-18|19:30:02.278] added vote to prevote                        module=consensus vote="Vote{0:8C6596CA37CC 28/00/SIGNED_MSG_TYPE_PREVOTE(Prevote) 164B6148A43D 156E5E0CF9F0 000000000000 @ 2024-03-18T23:30:02.2730881Z}" prevotes="VoteSet{H:28 R:0 T:SIGNED_MSG_TYPE_PREVOTE +2/3:164B6148A43D5CAA3BD081E1712085DAB3298941F112C4819AC1D756D7281FB5:1:A3163E6DECA4(1) BA{1:x} map[]}"
+D[2024-03-18|19:30:02.278] updating valid block because of POL          module=consensus valid_round=-1 pol_round=0
+D[2024-03-18|19:30:02.278] Broadcast                                    module=p2p channel=32
+D[2024-03-18|19:30:02.278] entering precommit step                      module=consensus height=28 round=0 current=28/0/RoundStepPrevote
+D[2024-03-18|19:30:02.279] precommit step; +2/3 prevoted proposal block; locking module=consensus height=28 round=0 hash=164B6148A43D5CAA3BD081E1712085DAB3298941F112C4819AC1D756D7281FB5
+D[2024-03-18|19:30:02.285] signed and pushed vote                       module=consensus height=28 round=0 vote="Vote{0:8C6596CA37CC 28/00/SIGNED_MSG_TYPE_PRECOMMIT(Precommit) 164B6148A43D A72CF715E03B 000000000000 @ 2024-03-18T23:30:02.2797041Z}"
+D[2024-03-18|19:30:02.285] Broadcast                                    module=p2p channel=32
+D[2024-03-18|19:30:02.285] received msg from intervalMsgQueue           module=consensus 
+D[2024-03-18|19:30:02.285] Attempt to update stats for non-existent peer module=consensus peer=
+D[2024-03-18|19:30:02.288] start handle internal msg                    module=consensus 
+D[2024-03-18|19:30:02.288] adding vote                                  module=consensus vote_height=28 vote_type=SIGNED_MSG_TYPE_PRECOMMIT val_index=0 cs_height=28 extLen=0 extSigLen=0
+D[2024-03-18|19:30:02.288] Broadcast                                    module=p2p channel=32
+D[2024-03-18|19:30:02.289] added vote to precommit                      module=consensus height=28 round=0 validator=8C6596CA37CC846897C421156DDB006F17963CBD vote_timestamp="2024-03-18 23:30:02.2797041 +0000 UTC" data=Votes:10/10(1.000)
+D[2024-03-18|19:30:02.289] entering new round with invalid args         module=consensus height=28 round=0 current=28/0/RoundStepPrecommit
+D[2024-03-18|19:30:02.289] entering precommit step with invalid args    module=consensus height=28 round=0 current=28/0/RoundStepPrecommit
+D[2024-03-18|19:30:02.289] entering commit step                         module=consensus height=28 commit_round=0 current=28/0/RoundStepPrecommit
+D[2024-03-18|19:30:02.289] commit is for a locked block; set ProposalBlock=LockedBlock module=consensus height=28 commit_round=0 block_hash=164B6148A43D5CAA3BD081E1712085DAB3298941F112C4819AC1D756D7281FB5
+D[2024-03-18|19:30:02.289] Broadcast                                    module=p2p channel=32
+I[2024-03-18|19:30:02.289] finalizing commit of block                   module=consensus height=28 hash=164B6148A43D5CAA3BD081E1712085DAB3298941F112C4819AC1D756D7281FB5 root=0400000000000000 num_txs=1
+D[2024-03-18|19:30:02.289] committed block                              module=consensus height=28 block="Block{\n  Header{\n    Version:        {11 1}\n    ChainID:        test-chain-xC0uI2\n    Height:         28\n    Time:           2024-03-18 23:28:53.4136015 +0000 UTC\n    LastBlockID:    CAAC5EDE7C447C19F10B4676B3E918096C72DC4AF67EA7DFD380426FD5DBC9B6:1:B5283BC504DE\n    LastCommit:     15CF8F2D446116EFD198D633531D27381FDBB7D522C43FE27304441CF42DDCBF\n    Data:           27A4EAEF535D805AA64C6ADAF8B494AAE84B4D683E3B0FCB00A5B9F75B161E89\n    Validators:     4501FA60AA25A71ABB3AAF1A6760E53F949905BE7CDBB2C4F3D4ADC13D9740F6\n    NextValidators: 4501FA60AA25A71ABB3AAF1A6760E53F949905BE7CDBB2C4F3D4ADC13D9740F6\n    App:            0400000000000000\n    Consensus:      68ECD6F333119CE43751ECE583B981F23508AEAF4221FF582B1BB33BE42BCEFA\n    Results:        E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n    Evidence:       E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n    Proposer:       8C6596CA37CC846897C421156DDB006F17963CBD\n  }#164B6148A43D5CAA3BD081E1712085DAB3298941F112C4819AC1D756D7281FB5\n  Data{\n    276FA536C8E6E9B55B13384F9799CFE6FF150DE40EC24921A5325DE10AA92329 (10 bytes)\n  }#27A4EAEF535D805AA64C6ADAF8B494AAE84B4D683E3B0FCB00A5B9F75B161E89\n  EvidenceData{\n    \n  }#E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n  Commit{\n    Height:     27\n    Round:      0\n    BlockID:    CAAC5EDE7C447C19F10B4676B3E918096C72DC4AF67EA7DFD380426FD5DBC9B6:1:B5283BC504DE\n    Signatures:\n      CommitSig{6878AF9927F3 by 8C6596CA37CC on 2 @ 2024-03-18T23:28:53.4136015Z}\n  }#15CF8F2D446116EFD198D633531D27381FDBB7D522C43FE27304441CF42DDCBF\n}#164B6148A43D5CAA3BD081E1712085DAB3298941F112C4819AC1D756D7281FB5"
+I[2024-03-18|19:30:02.296] finalized block                              module=state height=28 num_txs_res=1 num_val_updates=0 block_app_hash=0600000000000000
+I[2024-03-18|19:30:02.296] executed block                               module=state height=28 app_hash=0600000000000000
+I[2024-03-18|19:30:02.299] committed state                              module=state height=28 block_app_hash=0400000000000000
+D[2024-03-18|19:30:02.299] removed transaction                          module=mempool tx=276FA536C8E6E9B55B13384F9799CFE6FF150DE40EC24921A5325DE10AA92329 height=28 total=0
+D[2024-03-18|19:30:02.299] Updating evidence pool                       module=evidence last_block_height=28 last_block_time="2024-03-18 23:28:53.4136015 +0000 UTC"
+D[2024-03-18|19:30:02.302] Broadcast                                    module=p2p channel=32
+D[2024-03-18|19:30:02.302] HTTPRestRPC                                  module=rpc-server method=/broadcast_tx_commit args="[<*types.Context Value> <[]uint8 Value>]" returns="[<*coretypes.ResultBroadcastTxCommit Value> <error Value>]"
+D[2024-03-18|19:30:02.302] Attempt to update stats for non-existent peer module=consensus peer=
+D[2024-03-18|19:30:02.302] Received tick                                module=consensus old_ti="{Duration:3s Height:28 Round:0 Step:RoundStepPropose}" new_ti="{Duration:986.5519ms Height:29 Round:0 Step:RoundStepNewHeight}"
+D[2024-03-18|19:30:02.302] Scheduled timeout                            module=consensus dur=986.5519ms height=29 round=0 step=RoundStepNewHeight
+D[2024-03-18|19:30:02.302] served RPC HTTP response                     module=rpc-server method=GET url="/broadcast_tx_commit?tx=\"name=tommy\"" status=200 duration=42 remoteAddr=127.0.0.1:42890
+I[2024-03-18|19:30:02.304] indexed block events                         module=txindex height=28
+D[2024-03-18|19:30:02.306] indexed transactions                         module=txindex height=28 num_txs=1
+I[2024-03-18|19:30:03.290] Timed out                                    module=consensus dur=986.5519ms height=29 round=0 step=RoundStepNewHeight
+D[2024-03-18|19:30:03.290] received tock                                module=consensus timeout=986.5519ms height=29 round=0 step=RoundStepNewHeight
+D[2024-03-18|19:30:03.290] entering new round                           module=consensus height=29 round=0 previous=29/0/RoundStepNewHeight proposer=8C6596CA37CC846897C421156DDB006F17963CBD
+D[2024-03-18|19:30:03.290] entering propose step                        module=consensus height=29 round=0 current=29/0/RoundStepNewRound
+D[2024-03-18|19:30:03.290] node is a validator                          module=consensus height=29 round=0
+D[2024-03-18|19:30:03.290] propose step; our turn to propose            module=consensus height=29 round=0 proposer=8C6596CA37CC846897C421156DDB006F17963CBD
+D[2024-03-18|19:30:03.290] Received tick                                module=consensus old_ti="{Duration:986.5519ms Height:29 Round:0 Step:RoundStepNewHeight}" new_ti="{Duration:3s Height:29 Round:0 Step:RoundStepPropose}"
+D[2024-03-18|19:30:03.290] Timer already stopped                        module=consensus 
+D[2024-03-18|19:30:03.290] Scheduled timeout                            module=consensus dur=3s height=29 round=0 step=RoundStepPropose
+D[2024-03-18|19:30:03.294] Start sending proposal and block parts on intervalMsgQueue module=consensus 
+D[2024-03-18|19:30:03.294] signed proposal                              module=consensus height=29 round=0 proposal="Proposal{29/0 (B61CE2BC217361F7E7F79D20BA0B80A110D31F587F7879BFB136935E08DC78ED:1:898928B08831, -1) 1DA8A96A4C0C @ 2024-03-18T23:30:03.2926438Z}"
+D[2024-03-18|19:30:03.294] Broadcast                                    module=p2p channel=32
+D[2024-03-18|19:30:03.294] received msg from intervalMsgQueue           module=consensus 
+D[2024-03-18|19:30:03.297] start handle internal msg                    module=consensus 
+I[2024-03-18|19:30:03.297] received proposal                            module=consensus proposal="Proposal{29/0 (B61CE2BC217361F7E7F79D20BA0B80A110D31F587F7879BFB136935E08DC78ED:1:898928B08831, -1) 1DA8A96A4C0C @ 2024-03-18T23:30:03.2926438Z}" proposer=8C6596CA37CC846897C421156DDB006F17963CBD
+D[2024-03-18|19:30:03.297] received msg from intervalMsgQueue           module=consensus 
+D[2024-03-18|19:30:03.299] start handle internal msg                    module=consensus 
+D[2024-03-18|19:30:03.299] Broadcast                                    module=p2p channel=32
+D[2024-03-18|19:30:03.299] receive block part                           module=consensus height=29 round=0 index=0 count=1 total=1 from=
+I[2024-03-18|19:30:03.299] received complete proposal block             module=consensus height=29 hash=B61CE2BC217361F7E7F79D20BA0B80A110D31F587F7879BFB136935E08DC78ED
+D[2024-03-18|19:30:03.299] entering prevote step                        module=consensus height=29 round=0 current=29/0/RoundStepPropose
+D[2024-03-18|19:30:03.300] prevote step: ProposalBlock is valid and there is no locked block; prevoting the proposal module=consensus height=29 round=0
+D[2024-03-18|19:30:03.302] signed and pushed vote                       module=consensus height=29 round=0 vote="Vote{0:8C6596CA37CC 29/00/SIGNED_MSG_TYPE_PREVOTE(Prevote) B61CE2BC2173 E90F58842B73 000000000000 @ 2024-03-18T23:30:03.3004959Z}"
+D[2024-03-18|19:30:03.302] Broadcast                                    module=p2p channel=32
+D[2024-03-18|19:30:03.302] received msg from intervalMsgQueue           module=consensus 
+D[2024-03-18|19:30:03.303] Attempt to update stats for non-existent peer module=consensus peer=
+D[2024-03-18|19:30:03.305] start handle internal msg                    module=consensus 
+D[2024-03-18|19:30:03.305] adding vote                                  module=consensus vote_height=29 vote_type=SIGNED_MSG_TYPE_PREVOTE val_index=0 cs_height=29 extLen=0 extSigLen=0
+D[2024-03-18|19:30:03.305] Broadcast                                    module=p2p channel=32
+D[2024-03-18|19:30:03.305] added vote to prevote                        module=consensus vote="Vote{0:8C6596CA37CC 29/00/SIGNED_MSG_TYPE_PREVOTE(Prevote) B61CE2BC2173 E90F58842B73 000000000000 @ 2024-03-18T23:30:03.3004959Z}" prevotes="VoteSet{H:29 R:0 T:SIGNED_MSG_TYPE_PREVOTE +2/3:B61CE2BC217361F7E7F79D20BA0B80A110D31F587F7879BFB136935E08DC78ED:1:898928B08831(1) BA{1:x} map[]}"
+D[2024-03-18|19:30:03.305] updating valid block because of POL          module=consensus valid_round=-1 pol_round=0
+D[2024-03-18|19:30:03.305] Broadcast                                    module=p2p channel=32
+D[2024-03-18|19:30:03.305] entering precommit step                      module=consensus height=29 round=0 current=29/0/RoundStepPrevote
+D[2024-03-18|19:30:03.305] precommit step; +2/3 prevoted proposal block; locking module=consensus height=29 round=0 hash=B61CE2BC217361F7E7F79D20BA0B80A110D31F587F7879BFB136935E08DC78ED
+D[2024-03-18|19:30:03.310] signed and pushed vote                       module=consensus height=29 round=0 vote="Vote{0:8C6596CA37CC 29/00/SIGNED_MSG_TYPE_PRECOMMIT(Precommit) B61CE2BC2173 3185B7F6AAFF 000000000000 @ 2024-03-18T23:30:03.3064529Z}"
+D[2024-03-18|19:30:03.311] Broadcast                                    module=p2p channel=32
+D[2024-03-18|19:30:03.311] received msg from intervalMsgQueue           module=consensus 
+D[2024-03-18|19:30:03.311] Attempt to update stats for non-existent peer module=consensus peer=
+D[2024-03-18|19:30:03.315] start handle internal msg                    module=consensus 
+D[2024-03-18|19:30:03.315] adding vote                                  module=consensus vote_height=29 vote_type=SIGNED_MSG_TYPE_PRECOMMIT val_index=0 cs_height=29 extLen=0 extSigLen=0
+D[2024-03-18|19:30:03.315] Broadcast                                    module=p2p channel=32
+D[2024-03-18|19:30:03.315] added vote to precommit                      module=consensus height=29 round=0 validator=8C6596CA37CC846897C421156DDB006F17963CBD vote_timestamp="2024-03-18 23:30:03.3064529 +0000 UTC" data=Votes:10/10(1.000)
+D[2024-03-18|19:30:03.315] entering new round with invalid args         module=consensus height=29 round=0 current=29/0/RoundStepPrecommit
+D[2024-03-18|19:30:03.315] entering precommit step with invalid args    module=consensus height=29 round=0 current=29/0/RoundStepPrecommit
+D[2024-03-18|19:30:03.315] entering commit step                         module=consensus height=29 commit_round=0 current=29/0/RoundStepPrecommit
+D[2024-03-18|19:30:03.315] commit is for a locked block; set ProposalBlock=LockedBlock module=consensus height=29 commit_round=0 block_hash=B61CE2BC217361F7E7F79D20BA0B80A110D31F587F7879BFB136935E08DC78ED
+D[2024-03-18|19:30:03.315] Broadcast                                    module=p2p channel=32
+I[2024-03-18|19:30:03.315] finalizing commit of block                   module=consensus height=29 hash=B61CE2BC217361F7E7F79D20BA0B80A110D31F587F7879BFB136935E08DC78ED root=0600000000000000 num_txs=0
+D[2024-03-18|19:30:03.315] committed block                              module=consensus height=29 block="Block{\n  Header{\n    Version:        {11 1}\n    ChainID:        test-chain-xC0uI2\n    Height:         29\n    Time:           2024-03-18 23:30:02.2797041 +0000 UTC\n    LastBlockID:    164B6148A43D5CAA3BD081E1712085DAB3298941F112C4819AC1D756D7281FB5:1:A3163E6DECA4\n    LastCommit:     8BCBB519984EA8D1C0E7807AF195851BCBF329C0F6DB8D053E6AAEBE778BF7F6\n    Data:           E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n    Validators:     4501FA60AA25A71ABB3AAF1A6760E53F949905BE7CDBB2C4F3D4ADC13D9740F6\n    NextValidators: 4501FA60AA25A71ABB3AAF1A6760E53F949905BE7CDBB2C4F3D4ADC13D9740F6\n    App:            0600000000000000\n    Consensus:      68ECD6F333119CE43751ECE583B981F23508AEAF4221FF582B1BB33BE42BCEFA\n    Results:        6E340B9CFFB37A989CA544E6BB780A2C78901D3FB33738768511A30617AFA01D\n    Evidence:       E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n    Proposer:       8C6596CA37CC846897C421156DDB006F17963CBD\n  }#B61CE2BC217361F7E7F79D20BA0B80A110D31F587F7879BFB136935E08DC78ED\n  Data{\n    \n  }#E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n  EvidenceData{\n    \n  }#E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855\n  Commit{\n    Height:     28\n    Round:      0\n    BlockID:    164B6148A43D5CAA3BD081E1712085DAB3298941F112C4819AC1D756D7281FB5:1:A3163E6DECA4\n    Signatures:\n      CommitSig{A72CF715E03B by 8C6596CA37CC on 2 @ 2024-03-18T23:30:02.2797041Z}\n  }#8BCBB519984EA8D1C0E7807AF195851BCBF329C0F6DB8D053E6AAEBE778BF7F6\n}#B61CE2BC217361F7E7F79D20BA0B80A110D31F587F7879BFB136935E08DC78ED"
+I[2024-03-18|19:30:03.321] finalized block                              module=state height=29 num_txs_res=0 num_val_updates=0 block_app_hash=0600000000000000
+I[2024-03-18|19:30:03.321] executed block                               module=state height=29 app_hash=0600000000000000
+I[2024-03-18|19:30:03.323] committed state                              module=state height=29 block_app_hash=0600000000000000
+D[2024-03-18|19:30:03.323] Updating evidence pool                       module=evidence last_block_height=29 last_block_time="2024-03-18 23:30:02.2797041 +0000 UTC"
+D[2024-03-18|19:30:03.327] Broadcast                                    module=p2p channel=32
+D[2024-03-18|19:30:03.327] Received tick                                module=consensus old_ti="{Duration:3s Height:29 Round:0 Step:RoundStepPropose}" new_ti="{Duration:987.7573ms Height:30 Round:0 Step:RoundStepNewHeight}"
+D[2024-03-18|19:30:03.327] Scheduled timeout                            module=consensus dur=987.7573ms height=30 round=0 step=RoundStepNewHeight
+D[2024-03-18|19:30:03.327] Attempt to update stats for non-existent peer module=consensus peer=
+I[2024-03-18|19:30:03.330] indexed block events                         module=txindex height=29
+D[2024-03-18|19:30:03.330] indexed transactions                         module=txindex height=29 num_txs=0
+I[2024-03-18|19:30:04.316] Timed out                                    module=consensus dur=987.7573ms height=30 round=0 step=RoundStepNewHeight
+D[2024-03-18|19:30:04.316] received tock                                module=consensus timeout=987.7573ms height=30 round=0 step=RoundStepNewHeight
+D[2024-03-18|19:30:04.316] entering new round                           module=consensus height=30 round=0 previous=30/0/RoundStepNewHeight proposer=8C6596CA37CC846897C421156DDB006F17963CBD
