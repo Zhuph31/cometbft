@@ -1,7 +1,6 @@
 package mempool
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"sync/atomic"
@@ -106,37 +105,6 @@ func (memR *Reactor) GetChannels() []*p2p.ChannelDescriptor {
 func (memR *Reactor) AddPeer(peer p2p.Peer) {
 	if memR.config.Broadcast {
 		go func() {
-			// Always forward transactions to unconditional peers.
-			if !memR.Switch.IsPeerUnconditional(peer.ID()) {
-				// Depending on the type of peer, we choose a semaphore to limit the gossiping peers.
-				var peerSemaphore *semaphore.Weighted
-				if peer.IsPersistent() && memR.config.ExperimentalMaxGossipConnectionsToPersistentPeers > 0 {
-					peerSemaphore = memR.activePersistentPeersSemaphore
-				} else if !peer.IsPersistent() && memR.config.ExperimentalMaxGossipConnectionsToNonPersistentPeers > 0 {
-					peerSemaphore = memR.activeNonPersistentPeersSemaphore
-				}
-
-				if peerSemaphore != nil {
-					for peer.IsRunning() {
-						// Block on the semaphore until a slot is available to start gossiping with this peer.
-						// Do not block indefinitely, in case the peer is disconnected before gossiping starts.
-						ctxTimeout, cancel := context.WithTimeout(context.TODO(), 30*time.Second)
-						// Block sending transactions to peer until one of the connections become
-						// available in the semaphore.
-						err := peerSemaphore.Acquire(ctxTimeout, 1)
-						cancel()
-
-						if err != nil {
-							continue
-						}
-
-						// Release semaphore to allow other peer to start sending transactions.
-						defer peerSemaphore.Release(1)
-						break
-					}
-				}
-			}
-
 			memR.mempool.metrics.ActiveOutboundConnections.Add(1)
 			defer memR.mempool.metrics.ActiveOutboundConnections.Add(-1)
 			memR.broadcastTxRoutine(peer)
