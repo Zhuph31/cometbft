@@ -36,9 +36,14 @@ type Reactor struct {
 	txSenders    map[types.TxKey]map[p2p.ID]bool
 	txSendersMtx cmtsync.Mutex
 
+	broadcastRoutins atomic.Int32 // number of broadcast rountine started
+
 	// similar to txSenders, but is set before a tx is validated, and is removed no maater the result
-	txSendersUnchecked    map[types.TxKey]map[p2p.ID]struct{}
-	txSendersUncheckedMtx cmtsync.Mutex
+	txSendersUnchecked                map[types.TxKey]map[p2p.ID]struct{}
+	txSendersUncheckedMtx             cmtsync.Mutex
+	txSendersUncheckedRemoveThreshold map[types.TxKey]int32 // how many broadcast routines to wait before removing the tx from the unchecked map
+	txSendersUncheckedRemoveCount     map[types.TxKey]int32 // how many broadcast routines has finished chekcing the tx unchecked map
+	txSendersUncheckedRemoveCountMtx  cmtsync.Mutex
 
 	// Semaphores to keep track of how many connections to peers are active for broadcasting
 	// transactions. Each semaphore has a capacity that puts an upper bound on the number of
@@ -53,12 +58,14 @@ type Reactor struct {
 // NewReactor returns a new Reactor with the given config and mempool.
 func NewReactor(config *cfg.MempoolConfig, mempool *CListMempool, waitSync bool) *Reactor {
 	memR := &Reactor{
-		config:             config,
-		mempool:            mempool,
-		waitSync:           atomic.Bool{},
-		txSenders:          make(map[types.TxKey]map[p2p.ID]bool),
-		txSendersUnchecked: make(map[types.TxKey]map[p2p.ID]struct{}),
-		peers:              p2p.NewPeerSet(), // initialize an empty peerSet
+		config:                            config,
+		mempool:                           mempool,
+		waitSync:                          atomic.Bool{},
+		txSenders:                         make(map[types.TxKey]map[p2p.ID]bool),
+		txSendersUnchecked:                make(map[types.TxKey]map[p2p.ID]struct{}),
+		txSendersUncheckedRemoveThreshold: make(map[types.TxKey]int32),
+		txSendersUncheckedRemoveCount:     make(map[types.TxKey]int32),
+		peers:                             p2p.NewPeerSet(), // initialize an empty peerSet
 	}
 	memR.BaseReactor = *p2p.NewBaseReactor("Mempool", memR)
 	if waitSync {
@@ -116,7 +123,9 @@ func (memR *Reactor) AddPeer(peer p2p.Peer) {
 		go func() {
 			memR.mempool.metrics.ActiveOutboundConnections.Add(1)
 			defer memR.mempool.metrics.ActiveOutboundConnections.Add(-1)
+			memR.broadcastRoutins.Add(1)
 			memR.broadcastTxRoutine(peer)
+			memR.broadcastRoutins.Add(-1)
 		}()
 
 		if err := memR.peers.Add(peer); err != nil {
@@ -147,6 +156,7 @@ func (memR *Reactor) Receive(e p2p.Envelope) {
 
 			// first add sender preset
 			memR.addSenderUnchecked(tx.Key(), e.Src.ID())
+			memR.txSendersUncheckedRemoveThreshold[tx.Key()] = memR.broadcastRoutins.Load()
 
 			// check if the src is our peer
 			reqRes, err := memR.mempool.CheckTx(tx)
@@ -277,9 +287,12 @@ func (memR *Reactor) broadcastTxRoutine(peer p2p.Peer) {
 		}
 		memR.txSendersUncheckedMtx.Unlock()
 
-		memR.Logger.Debug("try to remove senders unchecked")
-		// memR.removeSendersUnchecked(memTx.tx.Key())
-		memR.Logger.Debug("removed senders unchecked")
+		// add txSendersUncheckedRemoveCount by 1
+		removeCount := memR.increaseSendersUncheckedRemoveCount(memTx.tx.Key())
+		// remove sendersUnchecked if removeCount >= threshold
+		if removeCount >= memR.txSendersUncheckedRemoveThreshold[memTx.tx.Key()] {
+			memR.removeSendersUnchecked(memTx.tx.Key())
+		}
 
 		if isFromPeer {
 			memR.Logger.Debug("tx comes from a peer, skip sending",
@@ -291,7 +304,6 @@ func (memR *Reactor) broadcastTxRoutine(peer p2p.Peer) {
 			memR.peers.ForEach(func(peer p2p.Peer) {
 				memR.Logger.Debug("peer", "peer", peer.ID())
 			})
-
 		}
 
 		// NOTE: Transaction batching was disabled due to
@@ -376,4 +388,12 @@ func (memR *Reactor) removeSendersUnchecked(txKey types.TxKey) {
 	if memR.txSendersUnchecked != nil {
 		delete(memR.txSendersUnchecked, txKey)
 	}
+}
+
+func (memR *Reactor) increaseSendersUncheckedRemoveCount(txKey types.TxKey) int32 {
+	memR.txSendersUncheckedRemoveCountMtx.Lock()
+	defer memR.txSendersUncheckedRemoveCountMtx.Unlock()
+
+	memR.txSendersUncheckedRemoveCount[txKey]++
+	return memR.txSendersUncheckedRemoveCount[txKey]
 }
