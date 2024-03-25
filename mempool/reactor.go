@@ -245,6 +245,12 @@ func (memR *Reactor) broadcastTxRoutine(peer p2p.Peer) {
 		// https://github.com/tendermint/tendermint/issues/5796
 
 		if !memR.isSender(memTx.tx.Key(), peer.ID()) {
+
+			memR.Logger.Info("sending tx to peer", "peer", peer.ID(),
+				"tx", memTx.tx.Hash()[:8], "height", memTx.Height(),
+				"txs", memR.mempool.Size(), "peerHeight", peerState.GetHeight(),
+				"peerPersistent", peer.IsPersistent())
+
 			success := peer.Send(p2p.Envelope{
 				ChannelID: MempoolChannel,
 				Message:   &protomem.Txs{Txs: [][]byte{memTx.tx}},
