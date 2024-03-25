@@ -53,11 +53,12 @@ type Reactor struct {
 // NewReactor returns a new Reactor with the given config and mempool.
 func NewReactor(config *cfg.MempoolConfig, mempool *CListMempool, waitSync bool) *Reactor {
 	memR := &Reactor{
-		config:    config,
-		mempool:   mempool,
-		waitSync:  atomic.Bool{},
-		txSenders: make(map[types.TxKey]map[p2p.ID]bool),
-		peers:     p2p.NewPeerSet(), // initialize an empty peerSet
+		config:             config,
+		mempool:            mempool,
+		waitSync:           atomic.Bool{},
+		txSenders:          make(map[types.TxKey]map[p2p.ID]bool),
+		txSendersUnchecked: make(map[types.TxKey]map[p2p.ID]struct{}),
+		peers:              p2p.NewPeerSet(), // initialize an empty peerSet
 	}
 	memR.BaseReactor = *p2p.NewBaseReactor("Mempool", memR)
 	if waitSync {
@@ -143,6 +144,9 @@ func (memR *Reactor) Receive(e p2p.Envelope) {
 
 		for _, txBytes := range protoTxs {
 			tx := types.Tx(txBytes)
+
+			// first add sender preset
+			memR.addSenderUnchecked(tx.Key(), e.Src.ID())
 
 			// check if the src is our peer
 			reqRes, err := memR.mempool.CheckTx(tx)
@@ -259,6 +263,24 @@ func (memR *Reactor) broadcastTxRoutine(peer p2p.Peer) {
 		isFromPeer := false
 		var senders p2p.ID
 
+		memR.Logger.Debug("checking if tx comes from a peer", "tx", memTx.tx.Hash()[:8])
+
+		memR.txSendersUncheckedMtx.Lock()
+		txSenderUnchecked := memR.txSendersUnchecked[memTx.tx.Key()]
+		memR.Logger.Debug("number of senders", "num", len(txSenderUnchecked), "tx", memTx.tx.Hash()[:8])
+		for peerID := range txSenderUnchecked {
+			senders += peerID + ","
+			if memR.peers.Has(peerID) {
+				isFromPeer = true
+				break
+			}
+		}
+		memR.txSendersUncheckedMtx.Unlock()
+
+		memR.Logger.Debug("try to remove senders unchecked")
+		// memR.removeSendersUnchecked(memTx.tx.Key())
+		memR.Logger.Debug("removed senders unchecked")
+
 		if isFromPeer {
 			memR.Logger.Debug("tx comes from a peer, skip sending",
 				"tx", memTx.tx.Hash()[:8], "senders", senders)
@@ -336,11 +358,15 @@ func (memR *Reactor) addSenderUnchecked(txKey types.TxKey, senderID p2p.ID) {
 	memR.txSendersUncheckedMtx.Lock()
 	defer memR.txSendersUncheckedMtx.Unlock()
 
+	memR.Logger.Debug("adding sender unchecked", "tx", txKey, "sender", senderID)
+
 	if sendersSet, ok := memR.txSendersUnchecked[txKey]; ok {
 		sendersSet[senderID] = struct{}{}
 		return
 	}
-	memR.txSendersUnchecked[txKey] = map[p2p.ID]struct{}{senderID: {}}
+	memR.txSendersUnchecked[txKey] = map[p2p.ID]struct{}{senderID: struct{}{}}
+
+	memR.Logger.Debug("added sender unchecked", "tx", txKey, "sender", senderID)
 }
 
 func (memR *Reactor) removeSendersUnchecked(txKey types.TxKey) {
