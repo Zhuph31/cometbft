@@ -36,6 +36,10 @@ type Reactor struct {
 	txSenders    map[types.TxKey]map[p2p.ID]bool
 	txSendersMtx cmtsync.Mutex
 
+	// similar to txSenders, but is set before a tx is validated, and is removed no maater the result
+	txSendersUnchecked    map[types.TxKey]map[p2p.ID]struct{}
+	txSendersUncheckedMtx cmtsync.Mutex
+
 	// Semaphores to keep track of how many connections to peers are active for broadcasting
 	// transactions. Each semaphore has a capacity that puts an upper bound on the number of
 	// connections for different groups of peers.
@@ -252,26 +256,26 @@ func (memR *Reactor) broadcastTxRoutine(peer p2p.Peer) {
 		}
 
 		// check if memTx comes from a peer
-		txSender := memR.txSenders[memTx.tx.Key()]
 		isFromPeer := false
-		var peerID p2p.ID
-		for peerID := range txSender {
-			if memR.peers.Has(peerID) {
-				isFromPeer = true
-				break
-			}
-		}
+		var senders p2p.ID
 
 		if isFromPeer {
-			memR.Logger.Info("tx comes from a peer, skip sending",
-				"tx", memTx.tx.Hash(), "peer", peerID)
-			continue
+			memR.Logger.Debug("tx comes from a peer, skip sending",
+				"tx", memTx.tx.Hash()[:8], "senders", senders)
+		} else {
+			// print all peers from memR
+			memR.Logger.Debug("tx comes from a non-peer, keep sending",
+				"tx", memTx.tx.Hash()[:8], "senders", senders)
+			memR.peers.ForEach(func(peer p2p.Peer) {
+				memR.Logger.Debug("peer", "peer", peer.ID())
+			})
+
 		}
 
 		// NOTE: Transaction batching was disabled due to
 		// https://github.com/tendermint/tendermint/issues/5796
 
-		if !memR.isSender(memTx.tx.Key(), peer.ID()) {
+		if !memR.isSender(memTx.tx.Key(), peer.ID()) && !isFromPeer {
 
 			memR.Logger.Info("sending tx to peer", "peer", peer.ID(),
 				"tx", memTx.tx.Hash()[:8], "height", memTx.Height(),
@@ -325,5 +329,25 @@ func (memR *Reactor) removeSenders(txKey types.TxKey) {
 
 	if memR.txSenders != nil {
 		delete(memR.txSenders, txKey)
+	}
+}
+
+func (memR *Reactor) addSenderUnchecked(txKey types.TxKey, senderID p2p.ID) {
+	memR.txSendersUncheckedMtx.Lock()
+	defer memR.txSendersUncheckedMtx.Unlock()
+
+	if sendersSet, ok := memR.txSendersUnchecked[txKey]; ok {
+		sendersSet[senderID] = struct{}{}
+		return
+	}
+	memR.txSendersUnchecked[txKey] = map[p2p.ID]struct{}{senderID: {}}
+}
+
+func (memR *Reactor) removeSendersUnchecked(txKey types.TxKey) {
+	memR.txSendersUncheckedMtx.Lock()
+	defer memR.txSendersUncheckedMtx.Unlock()
+
+	if memR.txSendersUnchecked != nil {
+		delete(memR.txSendersUnchecked, txKey)
 	}
 }
