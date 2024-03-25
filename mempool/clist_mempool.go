@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"runtime"
+	"strings"
 	"sync"
 	"sync/atomic"
 
@@ -249,6 +251,18 @@ func (mem *CListMempool) TxsWaitChan() <-chan struct{} {
 // It blocks if we're waiting on Update() or Reap().
 // Safe for concurrent use by multiple goroutines.
 func (mem *CListMempool) CheckTx(tx types.Tx) (*abcicli.ReqRes, error) {
+
+	// Set the buffer size to 1024 to ensure that all stack trace information can be collected.
+	buf := make([]byte, 1024)
+	runtime.Stack(buf, true)
+	stackTrace := string(buf)
+	stackLines := strings.Split(stackTrace, "\n")
+
+	mem.logger.Debug("CheckTx", "tx", tx.Hash())
+	for i, line := range stackLines {
+		mem.logger.Debug(string(i), line)
+	}
+
 	mem.updateMtx.RLock()
 	// use defer to unlock mutex because application (*local client*) might panic
 	defer mem.updateMtx.RUnlock()
@@ -432,6 +446,7 @@ func (mem *CListMempool) resCbFirstTime(tx types.Tx, res *abci.CheckTxResponse) 
 		return
 	}
 
+	mem.logger.Debug("calling addTx, transaction is valid", "tx", tx.Hash(), "height", mem.height.Load())
 	if mem.addTx(&mempoolTx{
 		height:    mem.height.Load(),
 		gasWanted: res.GasWanted,

@@ -41,6 +41,9 @@ type Reactor struct {
 	// connections for different groups of peers.
 	activePersistentPeersSemaphore    *semaphore.Weighted
 	activeNonPersistentPeersSemaphore *semaphore.Weighted
+
+	// record all peers, so we know whether a TXs comes from a peer
+	peers *p2p.PeerSet
 }
 
 // NewReactor returns a new Reactor with the given config and mempool.
@@ -50,6 +53,7 @@ func NewReactor(config *cfg.MempoolConfig, mempool *CListMempool, waitSync bool)
 		mempool:   mempool,
 		waitSync:  atomic.Bool{},
 		txSenders: make(map[types.TxKey]map[p2p.ID]bool),
+		peers:     p2p.NewPeerSet(), // initialize an empty peerSet
 	}
 	memR.BaseReactor = *p2p.NewBaseReactor("Mempool", memR)
 	if waitSync {
@@ -109,6 +113,10 @@ func (memR *Reactor) AddPeer(peer p2p.Peer) {
 			defer memR.mempool.metrics.ActiveOutboundConnections.Add(-1)
 			memR.broadcastTxRoutine(peer)
 		}()
+
+		if err := memR.peers.Add(peer); err != nil {
+			memR.Logger.Error("")
+		}
 	}
 }
 
@@ -131,6 +139,8 @@ func (memR *Reactor) Receive(e p2p.Envelope) {
 
 		for _, txBytes := range protoTxs {
 			tx := types.Tx(txBytes)
+
+			// check if the src is our peer
 			reqRes, err := memR.mempool.CheckTx(tx)
 			switch {
 			case errors.Is(err, ErrTxInCache):
@@ -238,6 +248,23 @@ func (memR *Reactor) broadcastTxRoutine(peer p2p.Peer) {
 		memTx := next.Value.(*mempoolTx)
 		if peerState.GetHeight() < memTx.Height()-1 {
 			time.Sleep(PeerCatchupSleepIntervalMS * time.Millisecond)
+			continue
+		}
+
+		// check if memTx comes from a peer
+		txSender := memR.txSenders[memTx.tx.Key()]
+		isFromPeer := false
+		var peerID p2p.ID
+		for peerID := range txSender {
+			if memR.peers.Has(peerID) {
+				isFromPeer = true
+				break
+			}
+		}
+
+		if isFromPeer {
+			memR.Logger.Info("tx comes from a peer, skip sending",
+				"tx", memTx.tx.Hash(), "peer", peerID)
 			continue
 		}
 
