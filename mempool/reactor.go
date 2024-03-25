@@ -1,7 +1,6 @@
 package mempool
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"sync/atomic"
@@ -37,20 +36,36 @@ type Reactor struct {
 	txSenders    map[types.TxKey]map[p2p.ID]bool
 	txSendersMtx cmtsync.Mutex
 
+	broadcastRoutins atomic.Int32 // number of broadcast rountine started
+
+	// similar to txSenders, but is set before a tx is validated, and is removed no maater the result
+	txSendersUnchecked                map[types.TxKey]map[p2p.ID]struct{}
+	txSendersUncheckedMtx             cmtsync.Mutex
+	txSendersUncheckedRemoveThreshold map[types.TxKey]int32 // how many broadcast routines to wait before removing the tx from the unchecked map
+	txSendersUncheckedRemoveCount     map[types.TxKey]int32 // how many broadcast routines has finished chekcing the tx unchecked map
+	txSendersUncheckedRemoveCountMtx  cmtsync.Mutex
+
 	// Semaphores to keep track of how many connections to peers are active for broadcasting
 	// transactions. Each semaphore has a capacity that puts an upper bound on the number of
 	// connections for different groups of peers.
 	activePersistentPeersSemaphore    *semaphore.Weighted
 	activeNonPersistentPeersSemaphore *semaphore.Weighted
+
+	// record all peers, so we know whether a TXs comes from a peer
+	peers *p2p.PeerSet
 }
 
 // NewReactor returns a new Reactor with the given config and mempool.
 func NewReactor(config *cfg.MempoolConfig, mempool *CListMempool, waitSync bool) *Reactor {
 	memR := &Reactor{
-		config:    config,
-		mempool:   mempool,
-		waitSync:  atomic.Bool{},
-		txSenders: make(map[types.TxKey]map[p2p.ID]bool),
+		config:                            config,
+		mempool:                           mempool,
+		waitSync:                          atomic.Bool{},
+		txSenders:                         make(map[types.TxKey]map[p2p.ID]bool),
+		txSendersUnchecked:                make(map[types.TxKey]map[p2p.ID]struct{}),
+		txSendersUncheckedRemoveThreshold: make(map[types.TxKey]int32),
+		txSendersUncheckedRemoveCount:     make(map[types.TxKey]int32),
+		peers:                             p2p.NewPeerSet(), // initialize an empty peerSet
 	}
 	memR.BaseReactor = *p2p.NewBaseReactor("Mempool", memR)
 	if waitSync {
@@ -106,41 +121,16 @@ func (memR *Reactor) GetChannels() []*p2p.ChannelDescriptor {
 func (memR *Reactor) AddPeer(peer p2p.Peer) {
 	if memR.config.Broadcast {
 		go func() {
-			// Always forward transactions to unconditional peers.
-			if !memR.Switch.IsPeerUnconditional(peer.ID()) {
-				// Depending on the type of peer, we choose a semaphore to limit the gossiping peers.
-				var peerSemaphore *semaphore.Weighted
-				if peer.IsPersistent() && memR.config.ExperimentalMaxGossipConnectionsToPersistentPeers > 0 {
-					peerSemaphore = memR.activePersistentPeersSemaphore
-				} else if !peer.IsPersistent() && memR.config.ExperimentalMaxGossipConnectionsToNonPersistentPeers > 0 {
-					peerSemaphore = memR.activeNonPersistentPeersSemaphore
-				}
-
-				if peerSemaphore != nil {
-					for peer.IsRunning() {
-						// Block on the semaphore until a slot is available to start gossiping with this peer.
-						// Do not block indefinitely, in case the peer is disconnected before gossiping starts.
-						ctxTimeout, cancel := context.WithTimeout(context.TODO(), 30*time.Second)
-						// Block sending transactions to peer until one of the connections become
-						// available in the semaphore.
-						err := peerSemaphore.Acquire(ctxTimeout, 1)
-						cancel()
-
-						if err != nil {
-							continue
-						}
-
-						// Release semaphore to allow other peer to start sending transactions.
-						defer peerSemaphore.Release(1)
-						break
-					}
-				}
-			}
-
 			memR.mempool.metrics.ActiveOutboundConnections.Add(1)
 			defer memR.mempool.metrics.ActiveOutboundConnections.Add(-1)
+			memR.broadcastRoutins.Add(1)
 			memR.broadcastTxRoutine(peer)
+			memR.broadcastRoutins.Add(-1)
 		}()
+
+		if err := memR.peers.Add(peer); err != nil {
+			memR.Logger.Error("")
+		}
 	}
 }
 
@@ -163,6 +153,12 @@ func (memR *Reactor) Receive(e p2p.Envelope) {
 
 		for _, txBytes := range protoTxs {
 			tx := types.Tx(txBytes)
+
+			// first add sender preset
+			memR.addSenderUnchecked(tx.Key(), e.Src.ID())
+			memR.txSendersUncheckedRemoveThreshold[tx.Key()] = memR.broadcastRoutins.Load()
+
+			// check if the src is our peer
 			reqRes, err := memR.mempool.CheckTx(tx)
 			switch {
 			case errors.Is(err, ErrTxInCache):
@@ -273,10 +269,53 @@ func (memR *Reactor) broadcastTxRoutine(peer p2p.Peer) {
 			continue
 		}
 
+		// check if memTx comes from a peer
+		isFromPeer := false
+		var senders p2p.ID
+
+		memR.Logger.Debug("checking if tx comes from a peer", "tx", memTx.tx.Hash()[:8])
+
+		memR.txSendersUncheckedMtx.Lock()
+		txSenderUnchecked := memR.txSendersUnchecked[memTx.tx.Key()]
+		memR.Logger.Debug("number of senders", "num", len(txSenderUnchecked), "tx", memTx.tx.Hash()[:8])
+		for peerID := range txSenderUnchecked {
+			senders += peerID + ","
+			if memR.peers.Has(peerID) {
+				isFromPeer = true
+				break
+			}
+		}
+		memR.txSendersUncheckedMtx.Unlock()
+
+		// add txSendersUncheckedRemoveCount by 1
+		removeCount := memR.increaseSendersUncheckedRemoveCount(memTx.tx.Key())
+		// remove sendersUnchecked if removeCount >= threshold
+		if removeCount >= memR.txSendersUncheckedRemoveThreshold[memTx.tx.Key()] {
+			memR.removeSendersUnchecked(memTx.tx.Key())
+		}
+
+		if isFromPeer {
+			memR.Logger.Debug("tx comes from a peer, skip sending",
+				"tx", memTx.tx.Hash()[:8], "senders", senders)
+		} else {
+			// print all peers from memR
+			memR.Logger.Debug("tx comes from a non-peer, keep sending",
+				"tx", memTx.tx.Hash()[:8], "senders", senders)
+			memR.peers.ForEach(func(peer p2p.Peer) {
+				memR.Logger.Debug("peer", "peer", peer.ID())
+			})
+		}
+
 		// NOTE: Transaction batching was disabled due to
 		// https://github.com/tendermint/tendermint/issues/5796
 
-		if !memR.isSender(memTx.tx.Key(), peer.ID()) {
+		if !memR.isSender(memTx.tx.Key(), peer.ID()) && !isFromPeer {
+
+			memR.Logger.Info("sending tx to peer", "peer", peer.ID(),
+				"tx", memTx.tx.Hash()[:8], "height", memTx.Height(),
+				"txs", memR.mempool.Size(), "peerHeight", peerState.GetHeight(),
+				"peerPersistent", peer.IsPersistent())
+
 			success := peer.Send(p2p.Envelope{
 				ChannelID: MempoolChannel,
 				Message:   &protomem.Txs{Txs: [][]byte{memTx.tx}},
@@ -325,4 +364,36 @@ func (memR *Reactor) removeSenders(txKey types.TxKey) {
 	if memR.txSenders != nil {
 		delete(memR.txSenders, txKey)
 	}
+}
+
+func (memR *Reactor) addSenderUnchecked(txKey types.TxKey, senderID p2p.ID) {
+	memR.txSendersUncheckedMtx.Lock()
+	defer memR.txSendersUncheckedMtx.Unlock()
+
+	memR.Logger.Debug("adding sender unchecked", "tx", txKey, "sender", senderID)
+
+	if sendersSet, ok := memR.txSendersUnchecked[txKey]; ok {
+		sendersSet[senderID] = struct{}{}
+		return
+	}
+	memR.txSendersUnchecked[txKey] = map[p2p.ID]struct{}{senderID: struct{}{}}
+
+	memR.Logger.Debug("added sender unchecked", "tx", txKey, "sender", senderID)
+}
+
+func (memR *Reactor) removeSendersUnchecked(txKey types.TxKey) {
+	memR.txSendersUncheckedMtx.Lock()
+	defer memR.txSendersUncheckedMtx.Unlock()
+
+	if memR.txSendersUnchecked != nil {
+		delete(memR.txSendersUnchecked, txKey)
+	}
+}
+
+func (memR *Reactor) increaseSendersUncheckedRemoveCount(txKey types.TxKey) int32 {
+	memR.txSendersUncheckedRemoveCountMtx.Lock()
+	defer memR.txSendersUncheckedRemoveCountMtx.Unlock()
+
+	memR.txSendersUncheckedRemoveCount[txKey]++
+	return memR.txSendersUncheckedRemoveCount[txKey]
 }

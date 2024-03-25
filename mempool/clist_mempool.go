@@ -432,6 +432,7 @@ func (mem *CListMempool) resCbFirstTime(tx types.Tx, res *abci.CheckTxResponse) 
 		return
 	}
 
+	mem.logger.Debug("calling addTx, transaction is valid", "tx", tx.Hash(), "height", mem.height.Load())
 	if mem.addTx(&mempoolTx{
 		height:    mem.height.Load(),
 		gasWanted: res.GasWanted,
