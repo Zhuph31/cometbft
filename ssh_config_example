@@ -1,0 +1,18 @@
+Host blockchain-main
+    HostName 206.12.99.66
+    User     ubuntu 
+    IdentityFile ${path_to_private_key}
+
+Host blockchain-sub1
+    Hostname 192.168.41.91
+Host blockchain-sub2
+    Hostname 192.168.41.156
+Host blockchain-sub3
+    Hostname 192.168.41.26
+Host blockchain-sub4
+    Hostname 192.168.41.101
+
+Host blockchain-sub1 blockchain-sub2 blockchain-sub3 blockchain-sub4
+    User     ubuntu 
+    IdentityFile ${path_to_private_key}
+    ProxyJump blockchain-main
