@@ -371,7 +371,7 @@ func (memR *Reactor) addSenderUnchecked(txKey types.TxKey, senderID p2p.ID) {
 	memR.txSendersUncheckedMtx.Lock()
 	defer memR.txSendersUncheckedMtx.Unlock()
 
-	memR.Logger.Debug("adding sender unchecked", "tx", txKey, "sender", senderID)
+	// memR.Logger.Debug("adding sender unchecked", "tx", txKey, "sender", senderID)
 
 	if sendersSet, ok := memR.txSendersUnchecked[txKey]; ok {
 		sendersSet[senderID] = struct{}{}
@@ -379,7 +379,7 @@ func (memR *Reactor) addSenderUnchecked(txKey types.TxKey, senderID p2p.ID) {
 	}
 	memR.txSendersUnchecked[txKey] = map[p2p.ID]struct{}{senderID: struct{}{}}
 
-	memR.Logger.Debug("added sender unchecked", "tx", txKey, "sender", senderID)
+	// memR.Logger.Debug("added sender unchecked", "tx", txKey, "sender", senderID)
 }
 
 func (memR *Reactor) removeSendersUnchecked(txKey types.TxKey) {
