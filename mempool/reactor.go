@@ -137,7 +137,7 @@ func (memR *Reactor) AddPeer(peer p2p.Peer) {
 // Receive implements Reactor.
 // It adds any received transactions to the mempool.
 func (memR *Reactor) Receive(e p2p.Envelope) {
-	memR.Logger.Debug("Receive", "src", e.Src, "chId", e.ChannelID, "msg", e.Message)
+	memR.Logger.Debug("Receive", "src", "e.Src", "chId", e.ChannelID, "msg", "e.Message")
 	switch msg := e.Message.(type) {
 	case *protomem.Txs:
 		if memR.WaitSync() {
@@ -156,15 +156,15 @@ func (memR *Reactor) Receive(e p2p.Envelope) {
 
 			// first add sender preset
 			memR.addSenderUnchecked(tx.Key(), e.Src.ID())
-			memR.txSendersUncheckedRemoveThreshold[tx.Key()] = memR.broadcastRoutins.Load()
+			// memR.txSendersUncheckedRemoveThreshold[tx.Key()] = memR.broadcastRoutins.Load()
 
 			// check if the src is our peer
 			reqRes, err := memR.mempool.CheckTx(tx)
 			switch {
 			case errors.Is(err, ErrTxInCache):
-				memR.Logger.Debug("Tx already exists in cache", "tx", tx.Hash())
+				memR.Logger.Debug("Tx already exists in cache", "tx", "tx.Hash()")
 			case err != nil:
-				memR.Logger.Info("Could not check tx", "tx", tx.Hash(), "err", err)
+				memR.Logger.Info("Could not check tx", "tx", "tx.Hash()", "err", err)
 			default:
 				// Record the sender only when the transaction is valid and, as
 				// a consequence, added to the mempool. Senders are stored until
@@ -273,11 +273,11 @@ func (memR *Reactor) broadcastTxRoutine(peer p2p.Peer) {
 		isFromPeer := false
 		var senders p2p.ID
 
-		memR.Logger.Debug("checking if tx comes from a peer", "tx", memTx.tx.Hash()[:8])
+		// memR.Logger.Debug("checking if tx comes from a peer", "tx", memTx.tx.Hash()[:8])
 
 		memR.txSendersUncheckedMtx.Lock()
 		txSenderUnchecked := memR.txSendersUnchecked[memTx.tx.Key()]
-		memR.Logger.Debug("number of senders", "num", len(txSenderUnchecked), "tx", memTx.tx.Hash()[:8])
+		// memR.Logger.Debug("number of senders", "num", len(txSenderUnchecked), "tx", memTx.tx.Hash()[:8])
 		for peerID := range txSenderUnchecked {
 			senders += peerID + ","
 			if memR.peers.Has(peerID) {
@@ -290,31 +290,32 @@ func (memR *Reactor) broadcastTxRoutine(peer p2p.Peer) {
 		// add txSendersUncheckedRemoveCount by 1
 		removeCount := memR.increaseSendersUncheckedRemoveCount(memTx.tx.Key())
 		// remove sendersUnchecked if removeCount >= threshold
-		if removeCount >= memR.txSendersUncheckedRemoveThreshold[memTx.tx.Key()] {
+		// if removeCount >= memR.txSendersUncheckedRemoveThreshold[memTx.tx.Key()] {
+		if removeCount >= 3 { // fixed threshold since we are only testing for 4 nodes
 			memR.removeSendersUnchecked(memTx.tx.Key())
 		}
 
-		if isFromPeer {
-			memR.Logger.Debug("tx comes from a peer, skip sending",
-				"tx", memTx.tx.Hash()[:8], "senders", senders)
-		} else {
-			// print all peers from memR
-			memR.Logger.Debug("tx comes from a non-peer, keep sending",
-				"tx", memTx.tx.Hash()[:8], "senders", senders)
-			memR.peers.ForEach(func(peer p2p.Peer) {
-				memR.Logger.Debug("peer", "peer", peer.ID())
-			})
-		}
+		// if isFromPeer {
+		// 	memR.Logger.Debug("tx comes from a peer, skip sending",
+		// 		"tx", memTx.tx.Hash()[:8], "senders", senders)
+		// } else {
+		// 	// print all peers from memR
+		// 	memR.Logger.Debug("tx comes from a non-peer, keep sending",
+		// 		"tx", memTx.tx.Hash()[:8], "senders", senders)
+		// 	memR.peers.ForEach(func(peer p2p.Peer) {
+		// 		memR.Logger.Debug("peer", "peer", peer.ID())
+		// 	})
+		// }
 
 		// NOTE: Transaction batching was disabled due to
 		// https://github.com/tendermint/tendermint/issues/5796
 
 		if !memR.isSender(memTx.tx.Key(), peer.ID()) && !isFromPeer {
 
-			memR.Logger.Info("sending tx to peer", "peer", peer.ID(),
-				"tx", memTx.tx.Hash()[:8], "height", memTx.Height(),
-				"txs", memR.mempool.Size(), "peerHeight", peerState.GetHeight(),
-				"peerPersistent", peer.IsPersistent())
+			// memR.Logger.Info("sending tx to peer", "peer", peer.ID(),
+			// 	"tx", memTx.tx.Hash()[:8], "height", memTx.Height(),
+			// 	"txs", memR.mempool.Size(), "peerHeight", peerState.GetHeight(),
+			// 	"peerPersistent", peer.IsPersistent())
 
 			success := peer.Send(p2p.Envelope{
 				ChannelID: MempoolChannel,
