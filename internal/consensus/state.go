@@ -1785,7 +1785,7 @@ func (cs *State) finalizeCommit(height int64) {
 		"root", block.AppHash,
 		"num_txs", len(block.Txs),
 	)
-	logger.Debug("committed block", "block", log.NewLazySprintf("%v", block))
+	logger.Debug("committed block", "block", log.NewLazyBlockHash(block), "log.NewLazySprintf(v, block)")
 
 	fail.Fail() // XXX
 
