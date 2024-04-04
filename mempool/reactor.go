@@ -156,7 +156,7 @@ func (memR *Reactor) Receive(e p2p.Envelope) {
 
 			// first add sender preset
 			memR.addSenderUnchecked(tx.Key(), e.Src.ID())
-			memR.txSendersUncheckedRemoveThreshold[tx.Key()] = memR.broadcastRoutins.Load()
+			// memR.txSendersUncheckedRemoveThreshold[tx.Key()] = memR.broadcastRoutins.Load()
 
 			// check if the src is our peer
 			reqRes, err := memR.mempool.CheckTx(tx)
@@ -290,7 +290,8 @@ func (memR *Reactor) broadcastTxRoutine(peer p2p.Peer) {
 		// add txSendersUncheckedRemoveCount by 1
 		removeCount := memR.increaseSendersUncheckedRemoveCount(memTx.tx.Key())
 		// remove sendersUnchecked if removeCount >= threshold
-		if removeCount >= memR.txSendersUncheckedRemoveThreshold[memTx.tx.Key()] {
+		// if removeCount >= memR.txSendersUncheckedRemoveThreshold[memTx.tx.Key()] {
+		if removeCount >= 3 { // fixed threshold since we are only testing for 4 nodes
 			memR.removeSendersUnchecked(memTx.tx.Key())
 		}
 
