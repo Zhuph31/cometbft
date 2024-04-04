@@ -522,7 +522,7 @@ func (conR *Reactor) BroadcastDataRoutine(peer p2p.Peer, ps *PeerState) {
 
 OUTER_LOOP:
 	for {
-		logger.Debug("The broadcast modification is working")
+		// logger.Debug("The broadcast modification is working")
 
 		if !peer.IsRunning() || !conR.IsRunning() {
 			return
@@ -618,7 +618,7 @@ OUTER_LOOP:
 }
 
 func (conR *Reactor) BroadcastDataForCatchup(logger log.Logger, rs *cstypes.RoundState, prs *cstypes.PeerRoundState, ps *PeerState, peer p2p.Peer) {
-	logger.Debug("The broadcast modification is working")
+	// logger.Debug("The broadcast modification is working")
 	if index, ok := prs.ProposalBlockParts.Not().PickRandom(); ok {
 		// Ensure that the peer's PartSetHeader is correct
 		blockMeta := conR.conS.blockStore.LoadBlockMeta(prs.Height)
@@ -675,7 +675,7 @@ func (conR *Reactor) BroadcastVotesRoutine(peer p2p.Peer, ps *PeerState) {
 
 OUTER_LOOP:
 	for {
-		logger.Debug("The broadcast modification is working")
+		// logger.Debug("The broadcast modification is working")
 
 		if !peer.IsRunning() || !conR.IsRunning() {
 			return
