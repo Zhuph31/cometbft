@@ -273,11 +273,11 @@ func (memR *Reactor) broadcastTxRoutine(peer p2p.Peer) {
 		isFromPeer := false
 		var senders p2p.ID
 
-		memR.Logger.Debug("checking if tx comes from a peer", "tx", memTx.tx.Hash()[:8])
+		// memR.Logger.Debug("checking if tx comes from a peer", "tx", memTx.tx.Hash()[:8])
 
 		memR.txSendersUncheckedMtx.Lock()
 		txSenderUnchecked := memR.txSendersUnchecked[memTx.tx.Key()]
-		memR.Logger.Debug("number of senders", "num", len(txSenderUnchecked), "tx", memTx.tx.Hash()[:8])
+		// memR.Logger.Debug("number of senders", "num", len(txSenderUnchecked), "tx", memTx.tx.Hash()[:8])
 		for peerID := range txSenderUnchecked {
 			senders += peerID + ","
 			if memR.peers.Has(peerID) {
@@ -295,27 +295,27 @@ func (memR *Reactor) broadcastTxRoutine(peer p2p.Peer) {
 			memR.removeSendersUnchecked(memTx.tx.Key())
 		}
 
-		if isFromPeer {
-			memR.Logger.Debug("tx comes from a peer, skip sending",
-				"tx", memTx.tx.Hash()[:8], "senders", senders)
-		} else {
-			// print all peers from memR
-			memR.Logger.Debug("tx comes from a non-peer, keep sending",
-				"tx", memTx.tx.Hash()[:8], "senders", senders)
-			memR.peers.ForEach(func(peer p2p.Peer) {
-				memR.Logger.Debug("peer", "peer", peer.ID())
-			})
-		}
+		// if isFromPeer {
+		// 	memR.Logger.Debug("tx comes from a peer, skip sending",
+		// 		"tx", memTx.tx.Hash()[:8], "senders", senders)
+		// } else {
+		// 	// print all peers from memR
+		// 	memR.Logger.Debug("tx comes from a non-peer, keep sending",
+		// 		"tx", memTx.tx.Hash()[:8], "senders", senders)
+		// 	memR.peers.ForEach(func(peer p2p.Peer) {
+		// 		memR.Logger.Debug("peer", "peer", peer.ID())
+		// 	})
+		// }
 
 		// NOTE: Transaction batching was disabled due to
 		// https://github.com/tendermint/tendermint/issues/5796
 
 		if !memR.isSender(memTx.tx.Key(), peer.ID()) && !isFromPeer {
 
-			memR.Logger.Info("sending tx to peer", "peer", peer.ID(),
-				"tx", memTx.tx.Hash()[:8], "height", memTx.Height(),
-				"txs", memR.mempool.Size(), "peerHeight", peerState.GetHeight(),
-				"peerPersistent", peer.IsPersistent())
+			// memR.Logger.Info("sending tx to peer", "peer", peer.ID(),
+			// 	"tx", memTx.tx.Hash()[:8], "height", memTx.Height(),
+			// 	"txs", memR.mempool.Size(), "peerHeight", peerState.GetHeight(),
+			// 	"peerPersistent", peer.IsPersistent())
 
 			success := peer.Send(p2p.Envelope{
 				ChannelID: MempoolChannel,
