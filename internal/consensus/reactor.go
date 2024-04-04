@@ -254,7 +254,7 @@ func (conR *Reactor) Receive(e p2p.Envelope) {
 		return
 	}
 
-	conR.Logger.Debug("Receive", "src", e.Src, "chId", e.ChannelID, "msg", msg)
+	conR.Logger.Debug("Receive", "src", "e.Src", "chId", e.ChannelID, "msg", "msg")
 
 	// Get peer states
 	ps, ok := e.Src.Get(types.PeerStateKey).(*PeerState)
@@ -1196,7 +1196,7 @@ func (ps *PeerState) setHasProposalBlockPart(height int64, round int32, index in
 // Returns true if vote was sent.
 func (ps *PeerState) PickSendVote(votes types.VoteSetReader) bool {
 	if vote, ok := ps.PickVoteToSend(votes); ok {
-		ps.logger.Debug("Sending vote message", "ps", ps, "vote", vote)
+		ps.logger.Debug("Sending vote message", "ps", "ps", "vote", vote)
 		if ps.peer.Send(p2p.Envelope{
 			ChannelID: VoteChannel,
 			Message: &cmtcons.Vote{
