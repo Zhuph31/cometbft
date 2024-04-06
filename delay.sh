@@ -15,7 +15,7 @@ if [ $option -eq 1 ]; then
 fi
 
 if [ $option -eq 2 ]; then
-    echo "default delay mode, adding delay of ${delay}ms with ${jitters}ms jitters, and ${loss}% loss"
+    echo "loss delay mode, adding delay of ${delay}ms with ${jitters}ms jitters, and ${loss}% loss"
     sudo tc qdisc add dev ens3 root netem delay ${delay}ms ${jitters}ms loss ${loss}%
 fi
 
