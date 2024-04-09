@@ -1,11 +1,23 @@
+# Comparison between broadcast and gossip
 1. Title of project 
 2. Context
 3. Problem Statement
-4. Solution
-    1. Key features
-    2. How to use it? You can link the demo video here.
-    3. For Apps: Identify different types of users and what they can do. Example: someone who sets up the election versus someone who votes. Maybe an admin, depends on your application. 
-    4. Provide a link to analytics. Ideally, deploy the dashboard.
+## Solution
+### Vote Broadcast
+### Transaction Broadcast
+By default, the node that receives the transaction would send the transaction to all its peers, and peers would keep on gossiping about the transaction. To keep the other nodes from relaying the transaction, we record the sender when receiving a transaction and compare it against all the peers. If the transaction is sent by one of the peers, we believe that it is the sender's responsibility to broadcast the transaction. Otherwise, we assume it is sent by a client and start broadcasting the transaction.
+
+### Demo Video
+This is the link to the demo video:
+
+
+
+## Experiment
+### Experiment Setting
+We used 5 machines in total for the experiment. Geodec is deployed on the main machine, and four nodes will be started on each other machine. The machines are under the same subnet, and network conditions will be emulated through the network emulator module of linux.
+
+
+
     5. Include graphs from benchmarking.
 5. How to use?
     1. Instructions for a local setup to host the application
