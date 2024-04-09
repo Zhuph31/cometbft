@@ -522,9 +522,11 @@ func (conR *Reactor) BroadcastDataRoutine(peer p2p.Peer, ps *PeerState) {
 
 OUTER_LOOP:
 	for {
-		// logger.Debug("The broadcast modification is working")
+		logger.Debug("Starting a new iteration of data broadcasting routine")
 
 		if !peer.IsRunning() || !conR.IsRunning() {
+
+						logger.Debug("Peer or Reactor is not running, exiting data broadcasting routine")
 			return
 		}
 		if conR.conS.config.PeerGossipIntraloopSleepDuration > 0 {
@@ -542,6 +544,7 @@ OUTER_LOOP:
 				part := rs.ProposalBlockParts.GetPart(index)
 				parts, err := part.ToProto()
 				if err != nil {
+					logger.Error("Error converting block part to proto", "error", err)
 					panic(err)
 				}
 				logger.Debug("Sending block part", "height", prs.Height, "round", prs.Round)
@@ -554,10 +557,14 @@ OUTER_LOOP:
 					},
 				}) {
 					ps.SetHasProposalBlockPart(prs.Height, prs.Round, index)
+					logger.Debug("Block part sent successfully", "height", prs.Height, "round", prs.Round, "index", index)
+				} else {
+					logger.Error("Failed to send block part", "height", prs.Height, "round", prs.Round, "index", index)
 				}
 				continue OUTER_LOOP
 			}
 		}
+
 
 		blockStoreBase := conR.conS.blockStore.Base()
 		if blockStoreBase > 0 && 0 < prs.Height && prs.Height < rs.Height && prs.Height >= blockStoreBase {
