@@ -2,6 +2,8 @@
 1. Title of project 
 2. Context
 3. Problem Statement
+## Context
+## Problem Statement
 ## Solution
 ### Vote Broadcast
 ### Transaction Broadcast
@@ -10,12 +12,12 @@ By default, the node that receives the transaction would send the transaction to
 ### Demo Video
 This is the link to the demo video:
 
-
-
 ## Experiment
 ### Experiment Setting
-We used 5 machines in total for the experiment. Geodec is deployed on the main machine, and four nodes will be started on each other machine. The machines are under the same subnet, and network conditions will be emulated through the network emulator module of linux.
+We used 5 machines in total for the experiment. Geodec is deployed on the main machine, and four nodes will be started on each other machine. The machines are under the same subnet, and network conditions will be emulated through the network emulator module of Linux.
 
+### Geodec
+We use geodec to perform the benchmark. With proper configuration, geodec will log into the four machines, deploy cometbft, start a node on each machine, and keep sending transactions to the node during the benchmark period. We added new configurations for our four machines and set geodec to use them. We also linked our version of cometbft with it so our modified version of cometbft will be deployed and used during the benchmark. The changes on geodec is available at https://github.com/Zhuph31/geodec.
 
 
     5. Include graphs from benchmarking.
