@@ -517,9 +517,10 @@ func (conR *Reactor) getRoundState() *cstypes.RoundState {
 	return conR.rs
 }
 
-func (conR *Reactor) BroadcastDataRoutine(peer p2p.Peer, ps *PeerState) {
+func (conR *Reactor) BroadcastDataRoutine(peer p2p.Peer, ps *PeerState) { //Handles data broadcasting, compares roundstates, catch up data, block metadata loading etc.
 	logger := conR.Logger.With("peer", peer)
 
+	
 OUTER_LOOP:
 	for {
 		logger.Debug("Starting a new iteration of data broadcasting routine")
@@ -566,8 +567,8 @@ OUTER_LOOP:
 		}
 
 
-		blockStoreBase := conR.conS.blockStore.Base()
-		if blockStoreBase > 0 && 0 < prs.Height && prs.Height < rs.Height && prs.Height >= blockStoreBase {
+		blockStoreBase := conR.conS.blockStore.Base() //Handles the catchup data to peers, retrieves the base height
+		if blockStoreBase > 0 && 0 < prs.Height && prs.Height < rs.Height && prs.Height >= blockStoreBase { //Checks if data needs to be sent
 			heightLogger := logger.With("height", prs.Height)
 
 			if prs.ProposalBlockParts == nil {
@@ -577,12 +578,12 @@ OUTER_LOOP:
 						"blockstoreBase", blockStoreBase, "blockstoreHeight", conR.conS.blockStore.Height())
 					time.Sleep(conR.conS.config.PeerGossipSleepDuration)
 				} else {
-					ps.InitProposalBlockParts(blockMeta.BlockID.PartSetHeader)
+					ps.InitProposalBlockParts(blockMeta.BlockID.PartSetHeader)//Initializes the peer proposal block parts
 				}
 
 				continue OUTER_LOOP
 			}
-			conR.BroadcastDataForCatchup(heightLogger, rs, prs, ps, peer)
+			conR.BroadcastDataForCatchup(heightLogger, rs, prs, ps, peer)//Calls the function to handle atual broadcasting of the data to the peers
 			continue OUTER_LOOP
 		}
 
@@ -626,7 +627,7 @@ OUTER_LOOP:
 
 func (conR *Reactor) BroadcastDataForCatchup(logger log.Logger, rs *cstypes.RoundState, prs *cstypes.PeerRoundState, ps *PeerState, peer p2p.Peer) {
 	// logger.Debug("The broadcast modification is working")
-	if index, ok := prs.ProposalBlockParts.Not().PickRandom(); ok {
+	if index, ok := prs.ProposalBlockParts.Not().PickRandom(); ok {//Randomly selects block part index
 		// Ensure that the peer's PartSetHeader is correct
 		blockMeta := conR.conS.blockStore.LoadBlockMeta(prs.Height)
 		if blockMeta == nil {
@@ -820,11 +821,11 @@ func (conR *Reactor) broadcastVotesForHeight(
 	return false
 }
 
-func (conR *Reactor) queryMaj23Routine(peer p2p.Peer, ps *PeerState) {
+func (conR *Reactor) queryMaj23Routine(peer p2p.Peer, ps *PeerState) { //Handles the querying and sending vote sets with twothirds majority to peers
 OUTER_LOOP:
 	for {
 
-		if !peer.IsRunning() || !conR.IsRunning() {
+		if !peer.IsRunning() || !conR.IsRunning() {//Checks for if the peer is running
 			return
 		}
 
@@ -832,7 +833,7 @@ OUTER_LOOP:
 		prs := ps.GetRoundState()
 
 		if rs.Height == prs.Height {
-			if maj23, ok := rs.Votes.Prevotes(prs.Round).TwoThirdsMajority(); ok {
+			if maj23, ok := rs.Votes.Prevotes(prs.Round).TwoThirdsMajority(); ok {//retrieves round states
 				peer.TrySend(p2p.Envelope{
 					ChannelID: StateChannel,
 					Message: &cmtcons.VoteSetMaj23{
@@ -873,7 +874,7 @@ OUTER_LOOP:
 			}
 		}
 
-		if prs.CatchupCommitRound != -1 && prs.Height > 0 && prs.Height <= conR.conS.blockStore.Height() &&
+		if prs.CatchupCommitRound != -1 && prs.Height > 0 && prs.Height <= conR.conS.blockStore.Height() &&//checks for catchup commit rounds
 			prs.Height >= conR.conS.blockStore.Base() {
 			if commit := conR.conS.LoadCommit(prs.Height); commit != nil {
 				peer.TrySend(p2p.Envelope{
