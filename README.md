@@ -31,18 +31,43 @@ For overall performance, we used data including throughput and latency. We emula
 3. Three nodes closely grouped together, the forth nodes is 300 ms delay and 30ms jitter away from the group
 4. Four nodes, distributed in pairs on each side, with a 100ms delay and 10ms jitter in between.
 
-The result is shown in the graph below. TPS stands for transaction per second, BPS stands for bytes per second, and latency stands for the latency for reaching consesus.
+The result is shown in the table and bar graph below. TPS stands for transaction per second, BPS stands for bytes per second, and latency stands for the latency for reaching consesus.
 | Test Case | broadcast TPS | gossip TPS | broadcast BPS | gossip BPS | broadcast latency | gossip latency |
-| ------ | -------- | -------- | -------- | -------- | -------- |
-| 1 | 879     | 773     | 450,045     | 396,031     | 998 | 1,112 |
-| 2 | 数据     | 数据     | 数据     | 数据     |
-| 3 | 数据     | 数据     | 数据     | 数据     |
-| 4 | 数据     | 数据     | 数据     | 数据     |
+| --------- | -------------- | ---------- | -------------- | ---------- | ----------------- | -------------- |
+| 1         | 879            | 773        | 450,045        | 396,031    | 998               | 1,112          |
+| 2         | 209            | 164        | 107,107        | 84,188     | 21,707            | 27,778         |
+| 3         | 1,007          | 1,009      | 515,525        | 516,365    | 1,275             | 1,207          |
+| 4         | 1,217          | 954        | 623,290        | 488,222    | 1,019             | 652            |
 
+![image](https://github.com/Zhuph31/cometbft/assets/50798194/98b1401a-eb4f-4935-8ff4-21202c9fc33e)
+![image](https://github.com/Zhuph31/cometbft/assets/50798194/0f2bf335-a402-4352-8d7a-af9567c53e1b)
+![image](https://github.com/Zhuph31/cometbft/assets/50798194/b3aaf29e-3452-4669-9eeb-fb01e96a89bd)
 
+From the results we can see that:
+1. Broadcast is better than gossip at test cast 1, 2 and 4. Broadcast has higher throughput and takes less time to reach consensus, showing that broadcast can handle network delay and jitters better.
+2. In test case 3, broadcast and gossip show almost the same performance. This is reasonable since under this network topology, the performance is contraint by the farthest node, therefore broadcast and gossip takes about the same time to reach this node and generates similar performance.
 
+### Network Overhead
+For network overhead, we conduct the benchmark without any artificial delay, counting the number of transactions and the network usage of cometbft nodes throughout the benchmark process. The result is availabe at the table below.
+|          | broadcast | gossip    |
+|----------|-----------|-----------|
+| TPS      | 1,135 tx/s| 1,023 tx/s|
+| Send     | 269 MB    | 338 MB    |
+| Receive  | 219 MB    | 343 MB    |
 
+From the table, we can see that broadcast achieved a higher TPS than gossip under the same network condition. What's more, the number of bytes sent and received for broadcast is much lower, meaning that broadcast mechanism uses less network resource to achieve better performance.
 
+### Network Tolerance
+For network tolerance, we used network emulator to add packet loss and monitor the performane under different level of packet losses. The resuls is in the table below.
+| Packet Loss Rate | Broadcast TPS | Gossip TPS | Broadcast BPS | Gossip BPS | Broadcast Latency | Gossip Latency |
+|------------------|---------------|------------|----------------|------------|-------------------|----------------|
+| 5%               | 229 tx/s      | 443 tx/s   | 117,087 B/s    | 227,065 B/s| 1,819 ms          | 1,759 ms       |
+| 10%              | 78 tx/s       | 0 tx/s     | 39,694 B/s     | 0 B/s      | 2,197 ms          | -              |
+| 20%              | 78 tx/s       | 0 tx/s     | 39,694 B/s     | 0 B/s      | 2,197 ms          | -              |
+
+From the table, we can tell that:
+1. Gossip has a better performance when handling low packet loss rate like 5%.
+2. When packet loss rate goes up, gossip cannot reach consensus in time and does not commit any blocks, while broadcast can still commit some blocks.
 
 6. How to use?
     1. Instructions for a local setup to host the application
