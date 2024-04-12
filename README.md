@@ -69,6 +69,11 @@ From the table, we can tell that:
 1. Gossip has a better performance when handling low packet loss rate like 5%.
 2. When packet loss rate goes up, gossip cannot reach consensus in time and does not commit any blocks, while broadcast can still commit some blocks.
 
+### Usage
+Since only the internal mechanism is changed, the uasge of this repo is the same as the original cometbft repo. You may find what you need to do to have the code running here https://github.com/cometbft/cometbft.
+For testing, please refere to https://github.com/Zhuph31/geodec.
+
+### 
 6. How to use?
     1. Instructions for a local setup to host the application
     2. Required libraries for running it - provide installation instructions, links are acceptable. Scripts are preferred wherever possible. 
