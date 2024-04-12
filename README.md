@@ -17,7 +17,7 @@ This is the link to the demo video:
 
 ## Experiment
 ### Experiment Setting
-We used 5 machines in total for the experiment. Geodec is deployed on the main machine, and four nodes will be started on each other machine. The machines are under the same subnet, and network conditions will be emulated through the network emulator module of Linux. Network emulators allows us to add artificial delays, jitters, and packet loss between the nodes.
+We used 5 machines in total for the experiment. Geodec is deployed on the main machine, and four nodes will be started on each other machine. The machines are under the same subnet, and network conditions will be emulated through the network emulator module of Linux. Network emulators allow us to add artificial delays, jitters, and packet loss between the nodes.
 
 ### Geodec
 We use geodec to perform the benchmark. With proper configuration, Geodec will log into the four machines, deploy cometbft, start a node on each machine, and keep sending transactions to the node during the benchmark period. We added new configurations for our four machines and set Geodec to use them. We also linked our version of cometbft with it so our modified version of cometbft will be deployed and used during the benchmark. The changes on Geodec are available at https://github.com/Zhuph31/geodec.
@@ -28,7 +28,7 @@ We conducted multiple tests, which covered the overall performance, network over
 For overall performance, we used data including throughput and latency. We emulated four kinds of network conditions.
 1. Four nodes with 100ms delay and 10ms jitter between each pair of them
 2. Four nodes with 200ms delay and 20ms jitter between each pair of them
-3. Three nodes closely grouped together, the forth nodes is 300 ms delay and 30ms jitter away from the group
+3. Three nodes closely grouped together, the fourth node has a 300 ms delay and 30 ms jitter away from the group
 4. Four nodes, distributed in pairs on each side, with a 100ms delay and 10ms jitter in between.
 
 The result is shown in the table and bar graph below. TPS stands for transaction per second, BPS stands for bytes per second, and latency stands for the latency for reaching consesus.
@@ -44,21 +44,21 @@ The result is shown in the table and bar graph below. TPS stands for transaction
 ![image](https://github.com/Zhuph31/cometbft/assets/50798194/b3aaf29e-3452-4669-9eeb-fb01e96a89bd)
 
 From the results we can see that:
-1. Broadcast is better than gossip at test cast 1, 2 and 4. Broadcast has higher throughput and takes less time to reach consensus, showing that broadcast can handle network delay and jitters better.
-2. In test case 3, broadcast and gossip show almost the same performance. This is reasonable since under this network topology, the performance is contraint by the farthest node, therefore broadcast and gossip takes about the same time to reach this node and generates similar performance.
+1. Broadcast is better than gossip in test cases 1, 2, and 4. Broadcast has higher throughput and takes less time to reach consensus, showing that broadcast can handle network delay and jitters better.
+2. In test case 3, broadcast and gossip show almost the same performance. This is reasonable since under this network topology, the performance is constrained by the farthest node, therefore broadcast and gossip take about the same time to reach this node and generate similar performance.
 
 ### Network Overhead
-For network overhead, we conduct the benchmark without any artificial delay, counting the number of transactions and the network usage of cometbft nodes throughout the benchmark process. The result is availabe at the table below.
+For network overhead, we conduct the benchmark without any artificial delay, counting the number of transactions and the network usage of cometbft nodes throughout the benchmark process. The result is available at the table below.
 |          | broadcast | gossip    |
 |----------|-----------|-----------|
 | TPS      | 1,135 tx/s| 1,023 tx/s|
 | Send     | 269 MB    | 338 MB    |
 | Receive  | 219 MB    | 343 MB    |
 
-From the table, we can see that broadcast achieved a higher TPS than gossip under the same network condition. What's more, the number of bytes sent and received for broadcast is much lower, meaning that broadcast mechanism uses less network resource to achieve better performance.
+From the table, we can see that broadcast achieved a higher TPS than gossip under the same network condition. What's more, the number of bytes sent and received for broadcast is much lower, meaning that the broadcast mechanism uses fewer network resources to achieve better performance.
 
 ### Network Tolerance
-For network tolerance, we used network emulator to add packet loss and monitor the performane under different level of packet losses. The resuls is in the table below.
+For network tolerance, we used a network emulator to add packet loss and monitor the performance under different levels of packet loss. The results are in the table below.
 | Packet Loss Rate | Broadcast TPS | Gossip TPS | Broadcast BPS | Gossip BPS | Broadcast Latency | Gossip Latency |
 |------------------|---------------|------------|----------------|------------|-------------------|----------------|
 | 5%               | 229 tx/s      | 443 tx/s   | 117,087 B/s    | 227,065 B/s| 1,819 ms          | 1,759 ms       |
@@ -66,12 +66,11 @@ For network tolerance, we used network emulator to add packet loss and monitor t
 | 20%              | 78 tx/s       | 0 tx/s     | 39,694 B/s     | 0 B/s      | 2,197 ms          | -              |
 
 From the table, we can tell that:
-1. Gossip has a better performance when handling low packet loss rate like 5%.
+1. Gossip has a better performance when handling a low packet loss rate like 5%.
 2. When packet loss rate goes up, gossip cannot reach consensus in time and does not commit any blocks, while broadcast can still commit some blocks.
 
 ### Usage
-Since only the internal mechanism is changed, the uasge of this repo is the same as the original cometbft repo. You may find what you need to do to have the code running here https://github.com/cometbft/cometbft.
-For testing, please refere to https://github.com/Zhuph31/geodec.
+Since only the internal mechanism is changed, the usage of this repo is the same as the original cometbft repo. You may find what you need to do to have the code running here https://github.com/cometbft/cometbft.
 
 ### 
 6. How to use?
