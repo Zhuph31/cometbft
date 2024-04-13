@@ -52,7 +52,7 @@ type Reactor struct {
 	activePersistentPeersSemaphore    *semaphore.Weighted
 	activeNonPersistentPeersSemaphore *semaphore.Weighted
 
-	// record all peers, so we know whether a TXs comes from a peer
+	// record all peers, so we know whether a TX comes from a peer
 	peers *p2p.PeerSet
 }
 
@@ -155,8 +155,7 @@ func (memR *Reactor) Receive(e p2p.Envelope) {
 		for _, txBytes := range protoTxs {
 			tx := types.Tx(txBytes)
 
-			// first add sender preset
-			memR.addSenderUnchecked(tx.Key(), e.Src.ID())
+			memR.addSenderUnchecked(tx.Key(), e.Src.ID())                                     // record the sender of current TX
 			memR.setTxSendersUncheckedRemoveThreshold(tx.Key(), memR.broadcastRoutins.Load()) // set the threshold for current transaction as the number of broadcast routines, which also means the number of peers
 
 			// check if the src is our peer
