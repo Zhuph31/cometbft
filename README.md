@@ -45,24 +45,31 @@ From the results we can see that:
 2. In test case 3, broadcast and gossip show almost the same performance. This is reasonable since under this network topology, the performance is constrained by the farthest node, therefore broadcast and gossip take about the same time to reach this node and generate similar performance.
 
 ### Network Overhead
-For network overhead, we conduct the benchmark without any artificial delay, counting the number of transactions and the network usage of cometbft nodes throughout the benchmark process. The result is available at the table below.
+For network overhead, we conduct the benchmark without any artificial delay, counting the number of transactions and the network usage of cometbft nodes throughout the benchmark process. The result is available in the table and graphs below.
 |          | broadcast | gossip    |
 |----------|-----------|-----------|
 | TPS      | 1,135 tx/s| 1,023 tx/s|
 | Send     | 269 MB    | 338 MB    |
 | Receive  | 219 MB    | 343 MB    |
 
-From the table, we can see that broadcast achieved a higher TPS than gossip under the same network condition. What's more, the number of bytes sent and received for broadcast is much lower, meaning that the broadcast mechanism uses fewer network resources to achieve better performance.
+![image](https://github.com/Zhuph31/cometbft/assets/50798194/bd2e6b76-76b1-405c-b26a-cfc3058a4994)
+![image](https://github.com/Zhuph31/cometbft/assets/50798194/083392f8-3e13-439d-85d0-0463955064a7)
+![image](https://github.com/Zhuph31/cometbft/assets/50798194/9c57a892-f3f8-4dd7-b9db-27627d0d983b)
+
+From the result, we can see that broadcast achieved a higher TPS than gossip under the same network condition. What's more, the number of bytes sent and received for broadcast is much lower, meaning that the broadcast mechanism uses fewer network resources to achieve better performance.
 
 ### Network Tolerance
-For network tolerance, we used a network emulator to add packet loss and monitor the performance under different levels of packet loss. The results are in the table below.
+For network tolerance, we used a network emulator to add packet loss and monitor the performance under different levels of packet loss. The results are in the table and graphs below.
 | Packet Loss Rate | Broadcast TPS | Gossip TPS | Broadcast BPS | Gossip BPS | Broadcast Latency | Gossip Latency |
 |------------------|---------------|------------|----------------|------------|-------------------|----------------|
 | 5%               | 229 tx/s      | 443 tx/s   | 117,087 B/s    | 227,065 B/s| 1,819 ms          | 1,759 ms       |
 | 10%              | 78 tx/s       | 0 tx/s     | 39,694 B/s     | 0 B/s      | 2,197 ms          | -              |
 | 20%              | 78 tx/s       | 0 tx/s     | 39,694 B/s     | 0 B/s      | 2,197 ms          | -              |
 
-From the table, we can tell that:
+![image](https://github.com/Zhuph31/cometbft/assets/50798194/fb6f119a-a6fa-4954-9569-c41af5b40b65)
+![image](https://github.com/Zhuph31/cometbft/assets/50798194/3895764a-2acf-4c7b-92d3-5aed47ccd18c)
+
+From the result, we can tell that:
 1. Gossip has a better performance when handling a low packet loss rate like 5%.
 2. When packet loss rate goes up, gossip cannot reach consensus in time and does not commit any blocks, while broadcast can still commit some blocks.
 
