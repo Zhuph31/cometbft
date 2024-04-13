@@ -1,4 +1,4 @@
-# Comparison between broadcast and gossip
+# Broadcast vs. Gossip: A Comparative Analysis in CometBFT Consensus"
 1. Title of project 
 2. Context
 3. Problem Statement
@@ -11,9 +11,6 @@ For benchmark, we employed Geodec. Geodec is a repository designed to investigat
 #### Vote Broadcast
 #### Transaction Broadcast
 By default, the node that receives the transaction would send the transaction to all its peers, and peers would keep on gossiping about the transaction. To keep the other nodes from relaying the transaction, we record the sender when receiving a transaction and compare it against all the peers. If the transaction is sent by one of the peers, we believe that it is the sender's responsibility to broadcast the transaction. Otherwise, we assume it is sent by a client and start broadcasting the transaction.
-
-### Demo Video
-This is the link to the demo video:
 
 ## Experiment
 ### Experiment Setting
@@ -70,27 +67,9 @@ From the table, we can tell that:
 2. When packet loss rate goes up, gossip cannot reach consensus in time and does not commit any blocks, while broadcast can still commit some blocks.
 
 ### Usage
-Since only the internal mechanism is changed, the usage of this repo is the same as the original cometbft repo. You may find what you need to do to have the code running here https://github.com/cometbft/cometbft.
+Since only the internal mechanism is changed, the usage of this repo is the same as the original cometbft repo. For building, installing, and local testing, please refer to  https://github.com/cometbft/cometbft.
+For benchmarking, please refer to https://github.com/Zhuph31/geodec main branch for instructions.
 
-### 
-6. How to use?
-    1. Instructions for a local setup to host the application
-    2. Required libraries for running it - provide installation instructions, links are acceptable. Scripts are preferred wherever possible. 
-    3. How to run it? - walk through the different features users can use.
-    4. If there are different types of users, specify what each can do.
-    5. If Metamask is used, indicate which testnet to link to.
-7. How to contribute?
-    1. Architecture
-    2. Local setup instructions
-        1. Include required dependencies installation instructions, if any.
-        2. Setup for testing, how to run tests.
-        3. If a smart contract, how to deploy a new contract?
-8. Include an appropriate license for the project.
-9. If this repository used components from other projects or is a fork:
-    1. Give credits to upstream repositories 
-    2. Clearly specify what is built on top of them.
-- Answer all relevant questions, adding more details for completeness as needed.
-- In addition to the README, we expect code to be present in the same repository.
-    - The code has to be well commented and easy to follow.
-    - Please use capabilities of GitHub - clearly defined PRs, commits and reviews on PRs from your team members.
-    - We expect individual contributions in terms of code from everyone in team and this data might be used for re-weighting the individual grades.
+### Credits
+This repo is forked from https://github.com/cometbft/cometbft.
+The modification on top of the original repo is the vote broadcast and transaction broadcast specified in previous sections.
