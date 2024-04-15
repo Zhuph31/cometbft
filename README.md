@@ -21,6 +21,7 @@ improve resilience and efficiency in distributed systems such as blockchain
 systems
 
 ## Solution
+
 To compare and benchmark gossip and broadcast in a fair and meaningful way, we
 plan to put these two methods into the same implementation and compare them. For
 this, we choose to use CometBFT as a base. CometBFT can be easily deployed
@@ -30,8 +31,7 @@ CometBFT adopts the gossip protocol by default, and we aim to implement a
 broadcast protocol on top of it. After the broadcast protocol is implemented, we can
 compare and benchmark these two methods using the modified CometBFT and this
 can guarantee that the experiments for each protocol will be under the same
-circumstances.
-
+circumstances. Overall, the key features of the modified CometBFT consist of the complete implementation of a broadcast communication protocol as opposed to the originally implemented gossip communication protocol.
 
 We start by understanding the code of cometbft, and learning how it works on mempool and consensus levels. Then we implemented the broadcast mechanism on top of cometbft, tested it, and ensured it was working in the correct way.
 For benchmark, we employed Geodec. Geodec is a repository designed to investigate the influence of geographic locations on consensus algorithms. In our case, we simply use Geodec to test the performance of the gossip and broadcast mechanisms.
