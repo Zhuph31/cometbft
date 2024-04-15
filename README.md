@@ -59,9 +59,6 @@ DISCLAIMER The binary of CometBFT is build/installed without the DWARF symbol ta
 
 The latest CometBFT is now installed. You can verify the installation by running: cometbft version
 
-## Compile
-make install
-make build
 ## Setup
 Please refer to the official cometbft guide for quick start: https://docs.cometbft.com/v0.38/guides/quick-start
 
