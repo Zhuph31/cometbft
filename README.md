@@ -44,7 +44,7 @@ The updated reactor.go into the internal/concensus directory manages the broadca
 By default, the node that receives the transaction would send the transaction to all its peers, and peers would keep on gossiping about the transaction. To keep the other nodes from relaying the transaction, we record the sender when receiving a transaction and compare it against all the peers. If the transaction is sent by one of the peers, we believe that it is the sender's responsibility to broadcast the transaction. Otherwise, we assume it is sent by a client and start broadcasting the transaction.
 
 
-#Packages to install
+### Packages to install
 Please refer to the original link: https://docs.cometbft.com/v0.38/guides/install
 
 go install github.com/cometbft/cometbft/cmd/cometbft@latest
