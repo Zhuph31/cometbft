@@ -103,17 +103,17 @@ Then, ssh into each machine and install CometBFT following the instructions.
 
 Next, use the cometbft testnet command to create four directories of config files (found in ./mytestnet) and copy each directory to the relevant machine in the cloud, so that each machine has $HOME/mytestnet/node[0-3] directory.
 
-Before you can start the network, you’ll need peers identifiers (IPs are not enough and can change). We’ll refer to them as ID1, ID2, ID3, ID4.
+###Before you can start the network, you’ll need peers identifiers (IPs are not enough and can change). We’ll refer to them as ID1, ID2, ID3, ID4.
 
 cometbft show_node_id --home ./mytestnet/node0
 cometbft show_node_id --home ./mytestnet/node1
 cometbft show_node_id --home ./mytestnet/node2
 cometbft show_node_id --home ./mytestnet/node3
-Here’s a handy Bash script to compile the persistent peers string, which will be needed for our next step:
+###Here’s a handy Bash script to compile the persistent peers string, which will be needed for our next step:
 
 #!/bin/bash
 
-# Check if the required argument is provided
+#Check if the required argument is provided
 if [ $# -eq 0 ]; then
     echo "Usage: $0 <ip1> <ip2> <ip3> ..."
     exit 1
@@ -145,6 +145,16 @@ for i in "${!@}"; do
 done
 
 echo "$PERSISTENT_PEERS"
+
+####Finally, from each machine, run:
+
+cometbft node --home ./mytestnet/node0 --proxy_app=kvstore --p2p.persistent_peers="ID1@IP1:26656,ID2@IP2:26656,ID3@IP3:26656,ID4@IP4:26656"
+cometbft node --home ./mytestnet/node1 --proxy_app=kvstore --p2p.persistent_peers="ID1@IP1:26656,ID2@IP2:26656,ID3@IP3:26656,ID4@IP4:26656"
+cometbft node --home ./mytestnet/node2 --proxy_app=kvstore --p2p.persistent_peers="ID1@IP1:26656,ID2@IP2:26656,ID3@IP3:26656,ID4@IP4:26656"
+cometbft node --home ./mytestnet/node3 --proxy_app=kvstore --p2p.persistent_peers="ID1@IP1:26656,ID2@IP2:26656,ID3@IP3:26656,ID4@IP4:26656"
+Note that after the third node is started, blocks will start to stream in because >2/3 of validators (defined in the genesis.json) have come online. Persistent peers can also be specified in the config.toml. See here for more information about configuration options.
+
+Transactions can then be sent as covered in the single, local node example above.
 
 ## Experiment
 ### Experiment Setting
