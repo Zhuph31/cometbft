@@ -10,7 +10,7 @@ For benchmark, we employed Geodec. Geodec is a repository designed to investigat
 ### Code Implementation
 #### Vote Broadcast
 
-======TO DO===============
+The updated reactor.go into the internal/concensus directory manages the broadcasting and synchronization of data and voting for CometBFT. The newly created functions BroadcastDataRoutine and BroadcastDataForCatchup handle the dissemination of block parts, proposals, and catch-up data to ensure network consistency. The newly created BroadcastVotesRoutine handles the broadcasting of votes based on consensus steps and heights, employing a sleep mechanism when no votes are available. Newly created broadcastVotesForHeight assists in selecting and sending specific votes pertinent to the current consensus state. The modified queryMaj23Routine focuses on querying and broadcasting two-thirds majority votes for prevotes, precommits, and proposal POLs, contributing to the network's consensus integrity and progress. This essentially sums up the modified changes and the responsibility of the Broadcast voting that has been implemented.
 
 #### Transaction Broadcast
 By default, the node that receives the transaction would send the transaction to all its peers, and peers would keep on gossiping about the transaction. To keep the other nodes from relaying the transaction, we record the sender when receiving a transaction and compare it against all the peers. If the transaction is sent by one of the peers, we believe that it is the sender's responsibility to broadcast the transaction. Otherwise, we assume it is sent by a client and start broadcasting the transaction.
