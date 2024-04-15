@@ -1,14 +1,14 @@
 # Broadcast vs. Gossip: A Comparative Analysis in CometBFT Consensus"
 
 
-# Context
+## Context
 Our objective was to create a comprehensive analysis of gossip and broadcast
 communication protocols by using both on a predetermined BFT algorithm which
 would be CometBFT in this case. By delving into their respective designs, consensus
 mechanisms, and other various metrics, the project seeks to compare their
 trade-offs. Which we have completed successfully.
 
-# Problem Statement
+## Problem Statement
 The problem we are currently facing is the lack of a unified platform along with the
 metrics that can be used to compare both gossip and broadcast communication
 protocols. By comparing the differences between gossip and broadcast
@@ -20,7 +20,7 @@ selecting protocols for achieving fault tolerance. We can also use this informat
 improve resilience and efficiency in distributed systems such as blockchain
 systems
 
-# Solution
+## Solution
 To compare and benchmark gossip and broadcast in a fair and meaningful way, we
 plan to put these two methods into the same implementation and compare them. For
 this, we choose to use CometBFT as a base. CometBFT can be easily deployed
@@ -31,8 +31,6 @@ broadcast protocol on top of it. After the broadcast protocol is implemented, we
 compare and benchmark these two methods using the modified CometBFT and this
 can guarantee that the experiments for each protocol will be under the same
 circumstances.
-
-
 
 
 We start by understanding the code of cometbft, and learning how it works on mempool and consensus levels. Then we implemented the broadcast mechanism on top of cometbft, tested it, and ensured it was working in the correct way.
