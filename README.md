@@ -43,6 +43,109 @@ The updated reactor.go into the internal/concensus directory manages the broadca
 #### Transaction Broadcast
 By default, the node that receives the transaction would send the transaction to all its peers, and peers would keep on gossiping about the transaction. To keep the other nodes from relaying the transaction, we record the sender when receiving a transaction and compare it against all the peers. If the transaction is sent by one of the peers, we believe that it is the sender's responsibility to broadcast the transaction. Otherwise, we assume it is sent by a client and start broadcasting the transaction.
 
+## Setup
+Please refer to the official cometbft guide for quick start: https://docs.cometbft.com/v0.38/guides/quick-start
+
+This is a quick start guide. If you have a vague idea about how CometBFT works and want to get started right away, continue.
+
+Install
+See the install guide.
+
+Initialization
+Running:
+
+cometbft init
+will create the required files for a single, local node.
+
+These files are found in $HOME/.cometbft:
+
+$ ls $HOME/.cometbft
+
+config  data
+
+$ ls $HOME/.cometbft/config/
+
+config.toml  genesis.json  node_key.json  priv_validator.json
+For a single, local node, no further configuration is required. Configuring a cluster is covered further below.
+
+Local Node
+Start CometBFT with a simple in-process application:
+
+cometbft node --proxy_app=kvstore
+Note: kvstore is a non persistent app, if you would like to run an application with persistence run --proxy_app=persistent_kvstore
+
+and blocks will start to stream in:
+
+I[01-06|01:45:15.592] Executed block                               module=state height=1 validTxs=0 invalidTxs=0
+I[01-06|01:45:15.624] Committed state                              module=state height=1 txs=0 appHash=
+Check the status with:
+
+curl -s localhost:26657/status
+Sending Transactions
+With the KVstore app running, we can send transactions:
+
+curl -s 'localhost:26657/broadcast_tx_commit?tx="abcd"'
+and check that it worked with:
+
+curl -s 'localhost:26657/abci_query?data="abcd"'
+We can send transactions with a key and value too:
+
+curl -s 'localhost:26657/broadcast_tx_commit?tx="name=satoshi"'
+and query the key:
+
+curl -s 'localhost:26657/abci_query?data="name"'
+where the value is returned in hex.
+
+Cluster of Nodes
+First create four Ubuntu cloud machines. The following was tested on Digital Ocean Ubuntu 16.04 x64 (3GB/1CPU, 20GB SSD). We’ll refer to their respective IP addresses below as IP1, IP2, IP3, IP4.
+
+Then, ssh into each machine and install CometBFT following the instructions.
+
+Next, use the cometbft testnet command to create four directories of config files (found in ./mytestnet) and copy each directory to the relevant machine in the cloud, so that each machine has $HOME/mytestnet/node[0-3] directory.
+
+Before you can start the network, you’ll need peers identifiers (IPs are not enough and can change). We’ll refer to them as ID1, ID2, ID3, ID4.
+
+cometbft show_node_id --home ./mytestnet/node0
+cometbft show_node_id --home ./mytestnet/node1
+cometbft show_node_id --home ./mytestnet/node2
+cometbft show_node_id --home ./mytestnet/node3
+Here’s a handy Bash script to compile the persistent peers string, which will be needed for our next step:
+
+#!/bin/bash
+
+# Check if the required argument is provided
+if [ $# -eq 0 ]; then
+    echo "Usage: $0 <ip1> <ip2> <ip3> ..."
+    exit 1
+fi
+
+# Command to run on each IP
+BASE_COMMAND="cometbft show_node_id --home ./mytestnet/node"
+
+# Initialize an array to store results
+PERSISTENT_PEERS=""
+
+# Iterate through provided IPs
+for i in "${!@}"; do
+    IP="${!i}"
+    NODE_IDX=$((i - 1))  # Adjust for zero-based indexing
+
+    echo "Getting ID of $IP (node $NODE_IDX)..."
+
+    # Run the command on the current IP and capture the result
+    ID=$($BASE_COMMAND$NODE_IDX)
+
+    # Store the result in the array
+    PERSISTENT_PEERS+="$ID@$IP:26656"
+
+    # Add a comma if not the last IP
+    if [ $i -lt $# ]; then
+        PERSISTENT_PEERS+=","
+    fi
+done
+
+echo "$PERSISTENT_PEERS"
+
 ## Experiment
 ### Experiment Setting
 We used 5 machines in total for the experiment. Geodec is deployed on the main machine, and four nodes will be started on each other machine. The machines are under the same subnet, and network conditions will be emulated through the network emulator module of Linux. Network emulators allow us to add artificial delays, jitters, and packet loss between the nodes.
