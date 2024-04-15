@@ -43,6 +43,25 @@ The updated reactor.go into the internal/concensus directory manages the broadca
 #### Transaction Broadcast
 By default, the node that receives the transaction would send the transaction to all its peers, and peers would keep on gossiping about the transaction. To keep the other nodes from relaying the transaction, we record the sender when receiving a transaction and compare it against all the peers. If the transaction is sent by one of the peers, we believe that it is the sender's responsibility to broadcast the transaction. Otherwise, we assume it is sent by a client and start broadcasting the transaction.
 
+
+#Packages to install
+Please refer to the original link: https://docs.cometbft.com/v0.38/guides/install
+
+go install github.com/cometbft/cometbft/cmd/cometbft@latest
+go install github.com/cometbft/cometbft/cmd/cometbft@v0.38
+
+echo export GOPATH=\"\$HOME/go\" >> ~/.bash_profile
+echo export PATH=\"\$PATH:\$GOPATH/bin\" >> ~/.bash_profile
+
+to put the binary in ./build.
+
+DISCLAIMER The binary of CometBFT is build/installed without the DWARF symbol table. If you would like to build/install CometBFT with the DWARF symbol and debug information, remove -s -w from BUILD_FLAGS in the make file.
+
+The latest CometBFT is now installed. You can verify the installation by running: cometbft version
+
+## Compile
+make install
+make build
 ## Setup
 Please refer to the official cometbft guide for quick start: https://docs.cometbft.com/v0.38/guides/quick-start
 
