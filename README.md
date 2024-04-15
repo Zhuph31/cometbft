@@ -45,7 +45,7 @@ By default, the node that receives the transaction would send the transaction to
 
 
 ## Packages to install
-Please refer to the original link: https://docs.cometbft.com/v0.38/guides/install
+Please refer to the official cometbft guide for install: https://docs.cometbft.com/v0.38/guides/install
 
 
 ## Setup
