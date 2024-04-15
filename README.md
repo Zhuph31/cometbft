@@ -1,10 +1,12 @@
 # Broadcast vs. Gossip: A Comparative Analysis in CometBFT Consensus"
 
 ## Context
-Our objective was to create a comprehensive analysis of gossip and broadcast communication protocols by using both on a predetermined BFT algorithm which would be CometBFT in this case. By delving into their respective designs, consensus mechanisms, and other various metrics, the project seeks to compare their trade-offs. Which we have completed successfully.
+Byzantine fault tolerance (BFT) enables distributed systems to maintain functionality even if some components fail or act maliciously. It ensures system integrity and consensus by replicating data across multiple nodes and employing algorithms to detect and mitigate faulty behavior.
+
+Our objective was to create a comprehensive analysis of gossip and broadcast communication protocols by using both on a predetermined Byzantine fault tolerance (BFT) algorithm which would be CometBFT in this case. By delving into their respective designs, consensus mechanisms, and other various metrics, the project seeks to compare their trade-offs. Which we have completed successfully.
 
 ## Problem Statement
-The problem we are currently facing is the lack of a unified platform along with the metrics that can be used to compare both gossip and broadcast communication protocols. By comparing the differences between gossip and broadcast communication protocols within the context of Byzantine Fault Tolerances (BFT), we can determine their performance and metrics. Addressing this problem will allow us to understand the strengths and weaknesses of gossip and broadcast protocols in BFT systems which will in turn enable more informed decision-making when selecting protocols for achieving fault tolerance. We can also use this information to improve resilience and efficiency in distributed systems such as blockchain systems.
+The problem we are currently facing is the lack of a unified platform along with the metrics that can be used to compare both gossip and broadcast communication protocols. By comparing the differences between gossip and broadcast communication protocols within the context of Byzantine Fault Tolerances (BFT), we can determine their performance and metrics. Addressing this problem will allow us to understand the strengths and weaknesses of gossip and broadcast protocols in BFT systems which will, in turn, enable more informed decision-making when selecting protocols for achieving fault tolerance. We can also use this information to improve resilience and efficiency in distributed systems such as blockchain systems.
 
 ## Solution
 To compare and benchmark gossip and broadcast in a fair and meaningful way, we plan to put these two methods into the same implementation and compare them. For this, we choose to use CometBFT as a base. CometBFT can be easily deployed locally and can form a network of multiple nodes on the same machine with the help of docker.
