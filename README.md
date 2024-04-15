@@ -47,25 +47,11 @@ By default, the node that receives the transaction would send the transaction to
 ### Packages to install
 Please refer to the original link: https://docs.cometbft.com/v0.38/guides/install
 
-go install github.com/cometbft/cometbft/cmd/cometbft@latest
-go install github.com/cometbft/cometbft/cmd/cometbft@v0.38
-
-echo export GOPATH=\"\$HOME/go\" >> ~/.bash_profile
-echo export PATH=\"\$PATH:\$GOPATH/bin\" >> ~/.bash_profile
-
-to put the binary in ./build.
-
-DISCLAIMER The binary of CometBFT is build/installed without the DWARF symbol table. If you would like to build/install CometBFT with the DWARF symbol and debug information, remove -s -w from BUILD_FLAGS in the make file.
-
-The latest CometBFT is now installed. You can verify the installation by running: cometbft version
 
 ## Setup
 Please refer to the official cometbft guide for quick start: https://docs.cometbft.com/v0.38/guides/quick-start
 
 This is a quick start guide. If you have a vague idea about how CometBFT works and want to get started right away, continue.
-
-Install
-See the install guide.
 
 ## Experiment
 ### Experiment Setting
