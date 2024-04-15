@@ -97,3 +97,14 @@ For benchmarking, please refer to https://github.com/Zhuph31/geodec main branch 
 ### Credits
 This repo is forked from https://github.com/cometbft/cometbft.
 The modification on top of the original repo is the vote broadcast and transaction broadcast specified in previous sections.
+### References
+
+References
+1. Cometbft. (Feb 25, 2024). CometBFT. GitHub. https://github.com/cometbft/cometbft
+2. Cometbft docs. (Feb 25, 2024). CometBFT official documents.
+https://docs.cometbft.com/v0.38/
+3. Broadcast gossip algorithms for consensus. (2009, July 1). IEEE Journals & Magazine |
+IEEE Xplore. https://ieeexplore.ieee.org/abstract/document/4787122
+4. Netem (Network Emulator). [OpenWrt Wiki]. (n.d.). https://openwrt.org/docs/guide-user/network/traffic-shaping/sch_netem 
+5.GeoDecConsensus. (n.d.). Geodecconsensus/GEODEC. GitHub. https://github.com/GeoDecConsensus/geodec 
+
